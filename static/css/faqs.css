@@ -1,0 +1,66 @@
+/* General Styles */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+  }
+  
+  h1 {
+    text-align: center;
+    margin-top: 40px;
+  }
+  
+  /* Accordion Styles */
+  .accordion {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .accordion-item {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+  }
+  
+  .accordion-item-header {
+    padding: 10px 20px;
+    background-color: #f5f5f5;
+    color: #333;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+  }
+  
+  .accordion-item-header:hover {
+    background-color: #e5e5e5;
+  }
+  
+  .accordion-item-body {
+    padding: 10px 20px;
+    background-color: #fff;
+    color: #333;
+    font-size: 16px;
+    line-height: 1.5;
+    animation: fade-in 0.5s ease-in-out;
+    display: none; /* Hide the answer by default */
+  }
+  
+  .accordion-item.active .accordion-item-body {
+    display: block; /* Show the answer when the question is active */
+  }
+  
+  /* Animations */
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  

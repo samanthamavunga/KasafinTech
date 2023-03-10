@@ -1,0 +1,338 @@
+body {
+    background: #dfe9ff;
+    font-family: Lato, sans-serif;
+  }
+  
+  button a {
+    color: #ffffff; /* changes the color of the hyperlink text */
+    text-decoration: none; /* removes the underline from the hyperlink text */
+  }
+  
+  button a:hover {
+    color: #ffffff;
+    text-decoration: none; /* changes the color of the hyperlink text when the mouse hovers over it */
+  }
+  
+  .bg-gradient-primary {
+    background: linear-gradient(to right, #007bff, #0062cc); /* adds a primary gradient background color */
+    border: none; /* removes the border around the navbar */
+  }
+  
+  .navbar {
+    margin-bottom: 0; /* removes any margin at the bottom of the navbar */
+  }
+  
+  .navbar-brand {
+    color: #fff; /* sets the color of the brand text to white */
+  }
+  
+  .navbar-nav > li > a {
+    color: #fff; /* sets the color of the links in the navbar to white */
+  }
+  
+  .navbar-nav > li > a:hover,
+  .navbar-nav > li > a:focus {
+    color: #fff; /* sets the color of the links in the navbar to white when hovered or focused */
+    background-color: #0062cc; /* adds a darker blue background color to the links when hovered or focused */
+  }
+  
+  .navbar-right > li > a {
+    color: #fff; /* sets the color of the right-hand links in the navbar to white */
+  }
+  
+  .navbar-right > li > a:hover,
+  .navbar-right > li > a:focus {
+    color: #fff; /* sets the color of the right-hand links in the navbar to white when hovered or focused */
+    background-color: #0056b3; /* adds a darker blue background color to the right-hand links when hovered or focused */
+  }
+  
+  .logo {
+    float: left; /* makes the logo float to the left side of the navbar */
+    margin-right: 20px; /* adds some spacing to the right of the logo */
+  }
+  
+  .arrow-down {
+    border: solid #fff; /* adds a white border to the arrow-down div */
+    border-width: 0 3px 3px 0; /* sets the width of the border to create a diagonal line */
+    display: inline-block; /* makes the div display as an inline block */
+    padding: 3px; /* adds some padding to the div to create some space */
+    transform: rotate(45deg); /* rotates*/
+  }
+  .banner {
+    height: auto;
+    margin: 32px 0px;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    position: relative;
+    z-index: 1;
+  }
+  @media (min-width: 768px) {
+    .banner {
+      height: 450px;
+      margin-bottom: 32px;
+    }
+  }
+  .banner .banner-image {
+    position: absolute;
+    opacity: 0.25;
+    right: 0px;
+    top: 0px;
+    height: 300px;
+    z-index: -1;
+    filter: drop-shadow(0 3rem 0.05rem #bfd8ff);
+  }
+  @media (min-width: 768px) {
+    .banner .banner-image {
+      display: inherit;
+      height: 400px;
+      top: 0px;
+      opacity: 0.5;
+    }
+  }
+  @media (min-width: 992px) {
+    .banner .banner-image {
+      height: 500px;
+      top: -50px;
+      opacity: 1;
+    }
+  }
+  .banner .banner-text {
+    max-width: 550px;
+    float: left;
+  }
+  .banner .banner-text h1 {
+    color: #00106a;
+    font-size: 5rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    margin-bottom: 1rem;
+  }
+  .banner .banner-text p {
+    color: #00106a;
+    font-size: 1.5rem;
+    line-height: 1.75;
+  }
+  .banner button {
+    border: 0;
+    border-radius: 50px;
+    padding: 0.75rem 2.75rem;
+    background: #4b71ff;
+    color: #ffffff;
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.25);
+    cursor: pointer;
+    position: relative;
+    font-size: 1.5rem;
+    font-weight: 400;
+    letter-spacing: 1px;
+    transition: all 0.3s ease-in-out;
+  }
+  .banner button:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 1rem 1.5rem rgba(0, 0, 0, 0.25);
+  }
+  
+  .mb-30 {
+    margin-bottom: 30px;
+  }
+  
+  .card {
+    padding: 16px 24px;
+    background: #ffffff;
+    height: 100%;
+    position: relative;
+    border: none;
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.15);
+    border: 2px solid transparent;
+    transition: all 0.3s ease-in-out;
+    z-index: 10;
+  }
+  .card h3.card-title {
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: #00106a;
+  }
+  .card p {
+    color: #989dc5;
+    font-size: 1.5rem;
+    line-height: 1.5;
+    margin-bottom: 72px;
+  }
+  .card .card-link {
+    position: absolute;
+    bottom: 18px;
+  }
+  .card:hover {
+    transform: translateY(-15px);
+    box-shadow: 0 1rem 1.5rem rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+  }
+  .card .card-icon {
+    width: 60px;
+    margin-bottom: 8px;
+    position: relative;
+    top: 0;
+    left: -12px;
+  }
+  
+  /* footer {
+    background: #00106a;
+    margin: 32px 0 0px;
+    padding: 32px 0;
+  }
+  footer ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  footer ul li {
+    color: #ffffff;
+    margin-bottom: 16px;
+  } */
+  
+  #footer{
+    background: linear-gradient(to right, #007bff, #0062cc);
+    padding: 0 0 30px 0;
+    color: #fff;
+    font-size: 14px;
+    margin-top:40px;
+  }
+  #footer .footer-newsletter{
+    padding: 50px 0;
+    background: linear-gradient(to right, #007bff, #0062cc);
+  }
+  #footer .footer-newsletter h4{
+    font-size: 24px;
+    margin: 0 0 20px 0;
+    padding: 0;
+    line-height: 1;
+    font-weight: 600
+  }
+  #footer .footer-newsletter form{
+    margin-top: 30px;
+    background: #fff;
+    padding: 6px 10px;
+    position: relative;
+    border-radius: 50px
+  }
+  #footer .footer-newsletter form input[type="email"]{
+    border: 0;
+    padding: 8px;
+    width: calc(100% - 140px)
+  }
+  #footer .footer-newsletter form input[type="submit"]{
+    position: absolute; 
+    top: 0;
+    right: 0;
+    bottom: 0;
+    border: 0;
+    background: none;
+    font-size: 16px;
+    padding: 0 30px;
+    margin: 3px;
+    background: linear-gradient(to right, #007bff, #0062cc);
+    color: #fff;
+    transition: 0.3s;
+    border-radius: 50px
+  }
+  #footer .footer-newsletter form input[type="submit"]:hover{
+    background: #8f99d1;
+  }
+  #footer .footer-top{
+    background: #8c9ae6;
+    border-top: 1px solid #00106a;
+    border-bottom: 1px solid #00106a;
+    padding: 60px 0 30px 0
+  }
+    #footer .footer-top .footer-info{
+        margin-bottom: 30px
+    }
+    #footer .footer-top .footer-info h3{
+        font-size: 18px;
+        margin: 0 0 20px 0;
+        padding: 2px 0 2px 0;
+        line-height: 1;
+        font-weight: 700
+    }
+    #footer .footer-top .footer-info p{
+        font-size: 14px;
+        line-height: 24px;
+        margin-bottom: 0;
+        font-family: "Raleway", sans-serif;
+        color: #fff
+    }
+    #footer .footer-top .social-links a{
+        font-size: 18px;
+        display: inline-block;
+        background: #ffffff;
+        color:  #8c9ae6;;
+        line-height: 1;
+        padding: 8px 0;
+        margin-right: 4px;
+        border-radius: 50%;
+        text-align: center;
+        width: 36px;
+        height: 36px;
+        transition: 0.3s
+    }
+    #footer .footer-top .social-links a:hover{
+        background: #8c9ae6;
+        color: #fff;
+        text-decoration: none
+    }
+    #footer .footer-top h4{
+        font-size: 16px;
+        font-weight: bold;
+        color: #fff;
+        text-transform: uppercase;
+        position: relative;
+        padding-bottom: 12px
+    }
+    #footer .footer-top .footer-links{
+        margin-bottom: 30px
+    }
+    #footer .footer-top .footer-links ul{
+        list-style: none;
+        padding: 0;
+        margin: 0
+    }
+    #footer .footer-top .footer-links ul i{
+        padding-right: 2px;
+        color: #ffffff;
+        font-size: 18px;
+        line-height: 1
+    }
+    #footer .footer-top .footer-links ul li{
+        padding: 10px 0;
+        display: flex;
+        align-items: center
+    }
+    #footer .footer-top .footer-links ul li:first-child{
+        padding-top: 0
+    }
+    #footer .footer-top .footer-links ul a{
+        color: #fff;
+        transition: 0.3s;
+        display: inline-block;
+        line-height: 1
+    }
+    #footer .footer-top .footer-links ul a:hover{
+        color: #00106a;
+         text-decoration:none;
+    }
+    #footer .footer-top .footer-contact{
+        margin-bottom: 30px
+    }
+    #footer .footer-top .footer-contact p{
+        line-height: 26px
+    }
+    #footer .copyright{
+        text-align: center;
+        padding-top: 30px
+    }
+    #footer .credits{
+        padding-top: 10px;
+        text-align: center;
+        font-size: 13px;
+        color: #fff
+    }

@@ -1,0 +1,21 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Record Page</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/record.css') }}">
+  <script src="{{ url_for('static', filename='record.js') }}"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Record your voice</h1>
+    <label for="record-btn">Record:</label>
+    <button id="record-btn">Start</button>
+    <button id="stop-btn" disabled>Stop</button>
+    <audio></audio>
+    <label for="recorded-text">Recorded Text:</label>
+    <div id="recorded-text"></div>
+    <button class="process-btn" id="process-btn" disabled><a href="{{ url_for('dashboard') }}">Process Text</a></button>
+  </div>
+</body>
+</html>

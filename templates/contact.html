@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Contact Us</title>
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/contact.css') }}">
+</head>
+<body>
+	<div class="contact-container">
+		<h2>Contact Us</h2>
+		<form>
+			<label for="name">Name</label>
+			<input type="text" id="name" name="name" placeholder="Your name..">
+			<label for="email">Email</label>
+			<input type="text" id="email" name="email" placeholder="Your email..">
+			<label for="subject">Subject</label>
+			<select id="subject" name="subject">
+				<option value="customer-service">Customer Service</option>
+				<option value="sales">Sales</option>
+				<option value="partnerships">Partnerships</option>
+			</select>
+			<label for="message">Message</label>
+			<textarea id="message" name="message" placeholder="Write something.."></textarea>
+			<input type="submit" value="Submit">
+		</form>
+	</div>
+    <script src="{{ url_for('static', filename='js/custom.js') }}"></script>
+</body>
+</html>
