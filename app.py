@@ -27,6 +27,19 @@ def create_user_table():
         )
     ''')
     conn.commit()
+# create a table for storing user data if it does not exist already
+def create_products_table():
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS products (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL UNIQUE,
+            
+            price REAL NOT NULL
+        )
+    ''')
+    conn.commit()
 # create a table for storing voice transcripts if it does not exist already
 def create_voice_transcripts_table():
     conn = get_db()
@@ -225,6 +238,8 @@ def update_profile():
     return render_template('update_profile.html', msg=msg)
 
 
-
 if __name__ == '__main__':
-    app.run()
+    create_user_table()
+    create_products_table()
+    create_voice_transcripts_table()
+    app.run(debug=True)
