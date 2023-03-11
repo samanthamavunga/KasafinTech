@@ -16,6 +16,26 @@ cursor.execute('''
     )
 ''')
 
+# Create the products table
+cursor.execute('''
+    CREATE TABLE IF NOT EXISTS products (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL UNIQUE,
+        price REAL NOT NULL
+    )
+''')
+
+# Create the voice_transcripts table
+cursor.execute('''
+    CREATE TABLE IF NOT EXISTS voice_transcripts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        transcript TEXT NOT NULL,
+        date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id)
+    )
+''')
+
 # Commit the changes
 conn.commit()
 
