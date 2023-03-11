@@ -27,6 +27,41 @@ def create_user_table():
         )
     ''')
     conn.commit()
+# create a table for storing voice transcripts if it does not exist already
+def create_voice_transcripts_table():
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS voice_transcripts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            transcript TEXT NOT NULL,
+            date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        )
+    ''')
+    conn.commit()
+
+# function to store voice transcripts in the database
+def store_voice_transcript(user_id, transcript):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('INSERT INTO voice_transcripts (user_id, transcript) VALUES (?, ?)', (user_id, transcript))
+    conn.commit()
+
+@app.route('/store-voice-data', methods=['POST'])
+def store_voice_data():
+    # get the user ID from the session
+    user_id = session.get('user_id')
+
+    # get the voice transcript data from the request
+    voice_transcript = request.form.get('voice_transcript')
+
+    # store the voice transcript data in the database
+    store_voice_transcript(user_id, voice_transcript)
+
+    # return a success response to the client
+    return {'status': 'success'}
 
 # function to hash passwords
 def hash_password(password):
