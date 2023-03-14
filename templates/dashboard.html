@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -67,25 +66,29 @@
       <h2>Update Profile</h2>
     </div>
     <div class="modal-body">
-        <form method="POST" action="{{ url_for('update_profile') }}">
+      <form method="POST" action="{{ url_for('update_profile') }}">
+        <label for="name">Username:</label>
+        <input type="text" id="name" name="name" value="{{ user['username'] if user else '' }}"><br>
       
-  <label for="name">Username:</label>
-  <input type="text" id="name" name="name" value=""><br>
-
-  <label for="email">Email:</label>
-  <input type="email" id="email" name="email" value=""><br>
-
-  <label for="password">Password:</label>
-  <input type="password" id="password" name="password"><br>
-
-  <label for="new_password">New Password:</label>
-  <input type="password" id="new_password" name="new_password"><br>
-
-  <label for="confirm_password">Confirm Password:</label>
-  <input type="password" id="confirm_password" name="confirm_password"><br>
-
-  <button type="submit" name="update-profile-btn">Update Profile</button>
-</form>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" value="{{ user['email'] if user else '' }}"><br>
+      
+        <label for="password">Current Password:</label>
+        <input type="password" id="password" name="password"><br>
+      
+        <label for="new_password">New Password:</label>
+        <input type="password" id="new_password" name="new_password"><br>
+      
+        <label for="confirm_password">Confirm Password:</label>
+        <input type="password" id="confirm_password" name="confirm_password"><br>
+      
+        {% if msg %}
+        <div>{{ msg }}</div>
+        {% endif %}
+      
+        <button type="submit" name="update-profile-btn">Update Profile</button>
+    </form>
+    
 
     </div>
   </div>
@@ -152,7 +155,7 @@ window.onclick = function(event) {
 
 					<div class="nav-option option5">
 						<i class="fa fa-shopping-cart nav-img"></i>
-						<h3> sales by product</h3>
+            <h3> Sales by products </h3>
 					</div>
 
 					<div class="nav-option option6">
