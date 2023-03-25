@@ -1,3 +1,4 @@
+from pickle import APPEND
 import mysql.connector
 
 # Connect to the database
@@ -44,15 +45,16 @@ cursor.execute('''
 conn.commit()
 
 def store_voice_transcript(user_id, transcript):
-    # Connect to the database
-    conn = mysql.connector.connect(
-        host="localhost",
-        user="root",
-        database="mydatabase",
-    )
+    with APPEND.app_context():
+        # Connect to the database
+        conn = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            database="mydatabase",
+        )
 
-    # Create a cursor object
-    cursor = conn.cursor()
+        # Create a cursor object
+        cursor = conn.cursor()
 
     # Execute the SQL query to store the voice transcript
     sql = "INSERT INTO voice_transcripts (user_id, transcript) VALUES (%s, %s)"
