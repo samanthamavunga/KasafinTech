@@ -202,36 +202,45 @@
                 </p>
 
                 <br>
-            
-                <input type ="submit" id="processtranscription" onclick="approveTranscription()" value ="Process" class ="submit-btn">
+                <form method="get" action="transcripts">
+                    <input type ="submit" id="processtranscription" onclick="transApprov(event)" value ="Process" class ="submit-btn">
+                </form>
         
             </div>
         </div>
-
-        <script>
-            var span = document.getElementById("transcription");
-            var td = document.getElementById("t1");
-
-            function approveTranscription(td){
-                const par = document.createElement('p');
-                const text = document.createTextNode(td);
-                par.appendChild(text);
-
-                trasc.appendChild(paragraph);
-
-                //td.innerHTML = span.textContent;
-            }
-
-            const td = 'Thisss';
-            approveTranscription(td);
-
-
-        </script>
             
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="{{ url_for('static', filename='js/table.js') }}"></script>
         <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
         <script src="{{ url_for('static', filename='js/index3.js') }}"></script>
+        
+        <script>
+           function transApprov(event){
+                console.log();
+                // get the transcription data from the DOM
+                //var transcription = document.getElementById("transcription").textContent;
+
+                // create a new XMLHttpRequest object
+                //var xhttp = new XMLHttpRequest();
+
+                // set up the AJAX request
+                //xhttp.open("POST", "/store-voice-data", true);
+                //xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+                // send the transcription data to the server
+                //xhttp.send("transcription=" + transcription);
+
+                // prevent the default form submission behavior
+                //event.preventDefault();
+
+                // redirect to the transcripts page
+                window.location.href = "/transcripts";
+            }
+
+
+        </script>
+
+
     </body>
 
 </html>

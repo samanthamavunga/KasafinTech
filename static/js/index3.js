@@ -36,11 +36,11 @@ function sendData(blob){
     // If the request is successful, get the transcription from the server response and display it
     .then(response => response.text())
     .then(transcription => {
-
-    
       //Display the transcribed text
       document.querySelector("#transcription").textContent = transcription;
-
+      
+      // call the store_voice_transcript function to store the transcription in the database
+      storeVoiceData(transcription);
 
     })
     // If there is an error, log the error message and display an alert to the user
@@ -48,6 +48,26 @@ function sendData(blob){
       console.error(error);
       alert("Error occurred during transcription. Please try again.");
     });
+
+
+    storeVoiceData(transcription)
+    function storeVoiceData(transcription) {
+      // Send an AJAX request to the server to store the transcription in the database
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', '/store-voice-data', true);
+      xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+      xhr.onload = function () {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+              const response = JSON.parse(xhr.responseText);
+              if (response.status === 'success') {
+                  alert('Transcription stored successfully!');
+              } else {
+                  alert('Failed to store transcription.');
+              }
+          }
+      };
+      xhr.send(`voice_transcript=${transcription}`);
+  }
 
     
 }

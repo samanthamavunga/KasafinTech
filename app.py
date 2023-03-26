@@ -35,10 +35,10 @@ def create_voice_transcripts_table():
         conn.close()
 
 # function to store voice transcripts in the database
-def store_voice_transcript(user_id, transcript):
+def store_voice_transcript(user_id, transcription):
     with app.app_context():
         cursor = mysql.connection.cursor()
-        cursor.execute('INSERT INTO voice_transcripts (user_id, transcript) VALUES (%s, %s)', (user_id, transcript))
+        cursor.execute('INSERT INTO voice_transcripts (user_id, transcription) VALUES (%s, %s)', (user_id, transcription))
         mysql.connection.commit()
         cursor.close()
 
@@ -48,7 +48,7 @@ def store_voice_data():
     user_id = session.get('user_id')
 
     # get the voice transcript data from the request
-    voice_transcript = request.form.get('voice_transcript')
+    voice_transcript = request.form.get('transcription')
 
     # store the voice transcript data in the database using the store_voice_transcript function
     store_voice_transcript(user_id, voice_transcript)
@@ -58,7 +58,21 @@ def store_voice_data():
     response.headers['Content-Type'] = 'application/json'
     return response
 
+# @app.route('/transcripts')
+# def transcripts():
+#     with app.app_context():
+#         cursor = mysql.connection.cursor()
+#         cursor.execute('SELECT transcript, date_created FROM voice_transcripts WHERE user_id = %s ORDER BY date_created DESC', (session.get('user_id'),))
+#         transcripts = cursor.fetchall()
+#         cursor.close()
 
+#     # render a template with the transcripts data
+#     return render_template('transcripts.html', transcripts=transcripts)
+
+
+# @app.route('/transcripts')
+# def transcripts():
+#     return render_template('transcripts.html')
 
 
 @app.route('/')
@@ -205,7 +219,7 @@ def update_profile():
     
 if __name__ == '__main__':
     
-    app.run(port = 5000)
+    app.run(port = 5002)
     create_voice_transcripts_table()
     app.run(debug=True)
 
