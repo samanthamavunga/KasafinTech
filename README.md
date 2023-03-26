@@ -62,3 +62,13 @@ git add .
 git commit -m "update feat/sam"
 git push origin feat/sam
 ```
+```
+git checkout main
+git pull origin main
+git checkout my-branch
+git merge main
+git commit
+git push origin my-branch
+Create a pull request to merge your changes from your branch into the main branch. You can do this on the GitHub website by selecting "New pull request" and choosing your branch as the "compare" branch and the main branch as the "base" branch. Once the pull request is created, other contributors can review and approve the changes before they are merged into the main branch.
+
+```
