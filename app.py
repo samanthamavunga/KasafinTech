@@ -19,27 +19,29 @@ bcrypt = Bcrypt(app)
 
 # create a table for storing voice transcripts if it does not exist already
 def create_voice_transcripts_table():
-    conn = MySQLdb.connect(host="localhost", user="root",  db="mydatabase")
-    cursor = conn.cursor()
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS voice_transcripts (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            user_id INT,
-            transcript TEXT NOT NULL,
-            date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (user_id) REFERENCES users(id)
-        )
-    ''')
-    conn.commit()
-    cursor.close()
-    conn.close()
+    with app.app_context():
+        conn = MySQLdb.connect(host="localhost", user="root",  db="mydatabase")
+        cursor = conn.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS voice_transcripts (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                user_id INT,
+                transcript TEXT NOT NULL,
+                date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            )
+        ''')
+        conn.commit()
+        cursor.close()
+        conn.close()
 
 # function to store voice transcripts in the database
 def store_voice_transcript(user_id, transcript):
-    cursor = mysql.connection.cursor()
-    cursor.execute('INSERT INTO voice_transcripts (user_id, transcript) VALUES (%s, %s)', (user_id, transcript))
-    mysql.connection.commit()
-    cursor.close()
+    with app.app_context():
+        cursor = mysql.connection.cursor()
+        cursor.execute('INSERT INTO voice_transcripts (user_id, transcript) VALUES (%s, %s)', (user_id, transcript))
+        mysql.connection.commit()
+        cursor.close()
 
 @app.route('/store-voice-data', methods=['POST'])
 def store_voice_data():
@@ -117,6 +119,10 @@ def register():
         msg = 'Please fill out the form!'
     return render_template('register.html', msg=msg)
 
+
+@app.route('/recordingpage')
+def recordingpage():
+    return render_template('recordingpage.html')
 
 
 @app.route('/record')
@@ -198,7 +204,8 @@ def update_profile():
 
     
 if __name__ == '__main__':
-   
+    
+    app.run(port = 5000)
     create_voice_transcripts_table()
     app.run(debug=True)
 
