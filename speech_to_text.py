@@ -17,7 +17,7 @@ import mysql.connector
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
 
-audiorecords = []
+# audiorecords = []
 
 # Enable CORS for all routes
 CORS(app)
@@ -27,7 +27,7 @@ key_path = 'C:/Users/keish/OneDrive/Desktop/mykey.json'
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = key_path
 
 # Define MySQL database connection details
-mydb = MySQLdb.connect(
+mydb = MySQLdb.connect( 
   host="localhost",
   user="root",
   database="mydatabase"

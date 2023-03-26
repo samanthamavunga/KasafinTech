@@ -10,7 +10,6 @@ app.secret_key = 'your secret key'
 
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-
 app.config['MYSQL_DB'] = 'mydatabase'
 
 mysql = MySQL(app)
@@ -58,6 +57,9 @@ def store_voice_data():
     response = make_response({'status': 'success'})
     response.headers['Content-Type'] = 'application/json'
     return response
+
+
+
 
 @app.route('/')
 def index():
@@ -130,8 +132,6 @@ def record():
     if 'loggedin' in session:
         return render_template('record.html', username=session['username'])
     return redirect(url_for('login'))
-
-
 
 
 @app.route('/dashboard')
