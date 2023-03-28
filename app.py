@@ -1,9 +1,21 @@
+import re
+import os
+import logging
 from flask import Flask, render_template, request, redirect, url_for, session, make_response
 from flask_bcrypt import Bcrypt
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
-import re
+from google.cloud import speech_v1p1beta1 as speech
+import mysql.connector
+from flask import jsonify
 import database  # import the database module
+import MySQLdb
+# import wave
+# import io
+# from pickle import FALSE
+from flask_cors import CORS
+
+
 
 app = Flask(__name__)
 app.secret_key = 'your secret key'
@@ -16,68 +28,118 @@ mysql = MySQL(app)
 
 bcrypt = Bcrypt(app)
 
-# create a table for storing voice transcripts if it does not exist already
-def create_voice_transcripts_table():
-    with app.app_context():
-        conn = MySQLdb.connect(host="localhost", user="root",  db="mydatabase")
-        cursor = conn.cursor()
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS voice_transcripts (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                user_id INT,
-                transcript TEXT NOT NULL,
-                date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (user_id) REFERENCES users(id)
-            )
-        ''')
-        conn.commit()
-        cursor.close()
-        conn.close()
 
-# function to store voice transcripts in the database
-def store_voice_transcript(user_id, transcription):
-    with app.app_context():
-        cursor = mysql.connection.cursor()
-        cursor.execute('INSERT INTO voice_transcripts (user_id, transcription) VALUES (%s, %s)', (user_id, transcription))
-        mysql.connection.commit()
-        cursor.close()
-
-@app.route('/store-voice-data', methods=['POST'])
-def store_voice_data():
-    # get the user ID from the session
-    user_id = session.get('user_id')
-
-    # get the voice transcript data from the request
-    voice_transcript = request.form.get('transcription')
-
-    # store the voice transcript data in the database using the store_voice_transcript function
-    store_voice_transcript(user_id, voice_transcript)
-
-    # create a success response
-    response = make_response({'status': 'success'})
-    response.headers['Content-Type'] = 'application/json'
-    return response
-
-# @app.route('/transcripts')
-# def transcripts():
-#     with app.app_context():
-#         cursor = mysql.connection.cursor()
-#         cursor.execute('SELECT transcript, date_created FROM voice_transcripts WHERE user_id = %s ORDER BY date_created DESC', (session.get('user_id'),))
-#         transcripts = cursor.fetchall()
-#         cursor.close()
-
-#     # render a template with the transcripts data
-#     return render_template('transcripts.html', transcripts=transcripts)
+#The beggining of the section that communicates with the Google Speech To text API.---------------------BEGIN----
+# Define the path to the Google Cloud credentials and set environment variable
+key_path = 'C:/Users/keish/OneDrive/Desktop/mykey.json'
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = key_path
 
 
-# @app.route('/transcripts')
-# def transcripts():
-#     return render_template('transcripts.html')
+@app.route('/speech_to_text', methods=['POST', 'GET'])
+def process_audio():
+    # Get the audio data from the request
+    blob = request.data
+    
+    # Get the user id from the session
+    users_id = session['id']
+
+    # if not blob:
+    #     return jsonify({'error': 'Audio data not provided in the request.'}), 400
+
+    # Create a client instance for the Speech-to-Text API
+    client = speech.SpeechClient()
+
+    # Set the audio configuration
+    # blob = request.get_data(cache=False)
+    audio = speech.RecognitionAudio(content=blob)
+
+    config = speech.RecognitionConfig(
+        encoding=speech.RecognitionConfig.AudioEncoding.MP3,
+        sample_rate_hertz=48000,
+        language_code='en-US',
+        # model ="default",
+        audio_channel_count=1,
+        enable_word_time_offsets=True,
+        enable_automatic_punctuation=True,
+        enable_speaker_diarization=True,
+        use_enhanced=True,
+        diarization_speaker_count=1,
+        speech_contexts=[
+            speech.SpeechContext(
+                phrases=["bought", "sold", "capital", "GHS", "banana", "salt", "bathing soap", "flour"
+                         "soap", "canned fish", "spaghetti", "Peppe", "cooking oil", "tampico",
+                         "kalipoo", "cereas", "cornflakes", "magarine", "royco", "chocolate biscuits",
+                         "ice cream", "sanitary pads", "Detol", "noodles", "popcorn", "powdered milk",
+                         "fresh milk", "fanta", "Bigoo", "sprite", "skirts", "trousers", "top", "jeans", "t-shirts"
+                         "chocolate milk", "Nescafe coffee", "fruit Telli", "jollof soup", "red source", "fish", "Don Simon"
+
+                         ],
+                boost=30
+            ),
+            speech.SpeechContext(
+                phrases=["cedis", "2", "sugar"],
+                boost=40
+            ),
+
+            speech.SpeechContext(
+                phrases=["bought item", "quantity", "amount",
+                         "sold item", "3 cedis", "10 cedis"],
+                boost=20
+            ),
+
+            speech.SpeechContext(
+                phrases=["Sold banana 10 cedis", "Bought bananas 100 cedis", "Capital 2000 cedis", "Sold chocolate biscuits 4 cedis", "Sold fresh milk 30 cedis", "Sold tampico 6 cedis",
+                         "Bought popcorn 100 cedis", "Sold cooking oil 50 cedis", " Bought sprite 4 cedis", "Sold sanitary pads 12 cedis"],
+                boost=20
+            ),
+        ]
+    )
+
+    #     speech_contexts = [
+    #         {
+    #         "phrases": ["bought", "sold", "capital", "cedis"]
+    #         "boost": 5},
+    #                        {"phrases": ["bought sugar GHS3", "sold 12 bananas GHS10"],}
+
+    #     ]
+
+    # )
+
+    # Use the Speech-to-Text API to transcribe the audio
+    response = client.recognize(config=config, audio=audio)
+
+    # Extract the transcription and confidence level from the response
+    transcription = response.results[0].alternatives[0].transcript
+    confidence = response.results[0].alternatives[0].confidence
+    
+    
+    textlist = transcription
+    print(users_id)
+    print(confidence)
+    
+    # Store the transcription in the database
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    print(cursor)
+    cursor.execute("INSERT INTO voice_transcripts (transcription, users_id, confidence_level) VALUES (%s, %s, %s)", (textlist, users_id, confidence))
+    mysql.connection.commit()
+    
+    
+    # return results as json
+    return textlist
+    # return jsonify({'transcription': transcription})
+#The beggining of the section that communicates with the Google Speech To text API.------------------END---
 
 
+
+
+#Rendering Templates
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/transcripts')
+def transcripts():
+    return render_template('transcripts.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -214,12 +276,7 @@ def update_profile():
     else:
         return redirect(url_for('login'))
 
-
-
-    
-if __name__ == '__main__':
-    
-    app.run(port = 5002)
-    create_voice_transcripts_table()
+  
+if __name__ == '__main__': 
+    app.run(port = 5000)
     app.run(debug=True)
-

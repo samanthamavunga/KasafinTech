@@ -118,26 +118,7 @@
 
             </script>
         </header>
-
-<!---
-        <table>
-            <thead>
-                <tr>
-                    <th>Transcription</th>
-                    <th>Date Created</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for transcript in transcripts %}
-                    <tr>
-                        <td>{{ transcript[0] }}</td>
-                        <td>{{ transcript[1] }}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-   -->
-
+    
     <div class="main-container">
         <div class="navcontainer">
             <nav class="nav">
@@ -190,6 +171,12 @@
             
         </table>
 
+        {% for transcription in transcriptions %}
+        <tr>
+            <td>{{ transcription['transcription'] }}</td>
+            <td>{{ transcription['date_created'] }}</td>
+        </tr>
+        {% endfor %}
 
         <div class="main">
 

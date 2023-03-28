@@ -29,7 +29,7 @@ function handlerFunction(stream) {
 // Define the sendData function to send the audio data to the server
 function sendData(blob){
   // Use the fetch API to send a POST request to the server with the audio data in the request body
-  fetch('http://127.0.0.1:5001/speech_to_text', {
+  fetch('/speech_to_text', {
       method: 'POST',
       body: blob
     })
@@ -38,9 +38,7 @@ function sendData(blob){
     .then(transcription => {
       //Display the transcribed text
       document.querySelector("#transcription").textContent = transcription;
-      
       // call the store_voice_transcript function to store the transcription in the database
-      storeVoiceData(transcription);
 
     })
     // If there is an error, log the error message and display an alert to the user
@@ -48,29 +46,32 @@ function sendData(blob){
       console.error(error);
       alert("Error occurred during transcription. Please try again.");
     });
-
-
-    storeVoiceData(transcription)
-    function storeVoiceData(transcription) {
-      // Send an AJAX request to the server to store the transcription in the database
-      const xhr = new XMLHttpRequest();
-      xhr.open('POST', '/store-voice-data', true);
-      xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-      xhr.onload = function () {
-          if (xhr.readyState === 4 && xhr.status === 200) {
-              const response = JSON.parse(xhr.responseText);
-              if (response.status === 'success') {
-                  alert('Transcription stored successfully!');
-              } else {
-                  alert('Failed to store transcription.');
-              }
-          }
-      };
-      xhr.send(`voice_transcript=${transcription}`);
   }
 
+
+
+
+//   function storeVoiceData(transcription) {
+//     // Send an AJAX request to the server to store the transcription in the database
+//     const xhr = new XMLHttpRequest();
+//     xhr.open('POST', '/store-voice-data', true);
+//     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     
-}
+//     xhr.onload = function () {
+//         if (xhr.readyState === 4 && xhr.status === 200) {
+//            const response = JSON.parse(xhr.responseText);
+//             if (response.status === 'success') {
+//                alert('Transcription stored successfully!');
+//             } else {
+//                alert('Failed to store transcription.');
+//             }
+//        }
+//     }; 
+
+//     xhr.send(`voice_transcript=${transcription}`);
+//     alert(transcription)
+// }
+
 
 // Add a click event listener to the record button
 record.onclick = e => {
