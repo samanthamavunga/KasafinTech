@@ -9,6 +9,7 @@ from google.cloud import speech_v1p1beta1 as speech
 import mysql.connector
 from flask import jsonify
 from datetime import datetime
+from fuzzywuzzy import fuzz
 import pandas
 
 import database  # import the database module
@@ -26,6 +27,11 @@ app.secret_key = 'your secret key'
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_DB'] = 'mydatabase'
+
+
+# Define the path to the Google Cloud credentials and set environment variable
+key_path = 'C:/Users/keish/OneDrive/Desktop/mykey.json'
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = key_path
 
 mysql = MySQL(app)
 
@@ -47,12 +53,26 @@ def transcripts():
     return render_template('transcripts.html', transcripts=transcripts)
 
 
+def preprocess_transaction(transcript):
+    action_score = fuzz.token_set_ratio(transcript.lower().split()[0], ['bought', 'sold'])
+    if action_score > 20:
+        transaction_type = 'bought' if transcript.lower().startswith('bought') else 'sold'
+        match = re.match(r"^(bought|sold)\s+(\w+)\s+(\d+)$", transcript)
+        if match:
+            item = match.group(2)
+            amount = match.group(3)
+        else:
+            item = None
+            amount = 0
+    else:
+        transaction_type = None
+        item = None
+        amount = 0
+    return transaction_type, amount, item
+        
+
+
 #The beggining of the section that communicates with the Google Speech To text API.---------------------BEGIN----
-# Define the path to the Google Cloud credentials and set environment variable
-key_path = 'C:/Users/keish/OneDrive/Desktop/mykey.json'
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = key_path
-
-
 @app.route('/speech_to_text', methods=['POST', 'GET'])
 def process_audio():
     # Get the audio data from the request
@@ -78,7 +98,7 @@ def process_audio():
         # model ="default",
         audio_channel_count=1,
         enable_word_time_offsets=True,
-        enable_automatic_punctuation=True,
+        enable_automatic_punctuation=False,
         enable_speaker_diarization=True,
         use_enhanced=True,
         diarization_speaker_count=1,
@@ -95,8 +115,10 @@ def process_audio():
                 boost=30
             ),
             speech.SpeechContext(
-                phrases=["cedis", "2", "sugar"],
-                boost=40
+                phrases=["Bought yam 200", "Bought sugar 200", "Bought salt 100", "Bought fanta 200", "Bought flour 300", "Bought sanitary 600",
+                         "Bought milk 500", "Bought chocolate 150", "Bought cornflakes 500", "Bought fish 400", "Bought kalipoo 200", "Bought spaghetti 300"
+                         , "Bought biscuits 320", "Bought coffee 300", "Bought noodle 300", "Bought royco 50", "Bought "],
+                boost=60
             ),
 
             speech.SpeechContext(
@@ -132,18 +154,31 @@ def process_audio():
     
     
     textlist = transcription
-    print(users_id)
-    print(confidence)
+    
+    transaction_type, amount, item = preprocess_transaction(transcription)
+    
+    print("transaction: ", transaction_type, " amount: ", amount, " item: ", item)
+    
+    
+   # print(textlist)
+   # print(type(textlist))
+
     
     # Store the transcription in the database
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     print(cursor)
     cursor.execute("INSERT INTO voice_transcripts (transcription, users_id, confidence_level) VALUES (%s, %s, %s)", (textlist, users_id, confidence))
+    cursor.execute("INSERT INTO income_statement (users_id, item_name, amount, transaction_type) VALUES (%s, %s, %s, %s)", (users_id, item, amount, transaction_type))
     mysql.connection.commit()
     
     
+    
+    
+    
+    
+    
     # return results as json
-    return textlist
+    return transcription
     # return jsonify({'transcription': transcription})
 #The beggining of the section that communicates with the Google Speech To text API.------------------END---
 

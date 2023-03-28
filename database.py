@@ -48,8 +48,9 @@ cursor.execute('''
     CREATE TABLE IF NOT EXISTS income_statement (
         id INT PRIMARY KEY AUTO_INCREMENT,
         users_id INT,
-        item TEXT,
+        item_name TEXT,
         amount decimal(10,2),
+        transaction_type TEXT,
         date_created DATE DEFAULT CURRENT_DATE,
         FOREIGN KEY (users_id) REFERENCES users(id)
     )
