@@ -8,6 +8,9 @@ import MySQLdb.cursors
 from google.cloud import speech_v1p1beta1 as speech
 import mysql.connector
 from flask import jsonify
+from datetime import datetime
+import pandas
+
 import database  # import the database module
 import MySQLdb
 # import wave
@@ -27,6 +30,21 @@ app.config['MYSQL_DB'] = 'mydatabase'
 mysql = MySQL(app)
 
 bcrypt = Bcrypt(app)
+
+
+@app.route('/transcripts')
+def transcripts():
+    # Get the user id from the session
+    users_id = session['id']
+    
+    # Retrieve the transcriptions from the database
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute("SELECT transcription, date_created FROM voice_transcripts WHERE users_id=%s", (users_id,))
+    transcripts = cursor.fetchall()
+    print(transcripts)
+
+    # Render the transcripts template with the retrieved data
+    return render_template('transcripts.html', transcripts=transcripts)
 
 
 #The beggining of the section that communicates with the Google Speech To text API.---------------------BEGIN----
@@ -137,9 +155,9 @@ def process_audio():
 def index():
     return render_template('index.html')
 
-@app.route('/transcripts')
-def transcripts():
-    return render_template('transcripts.html')
+# @app.route('/transcripts')
+# def transcripts():
+#     return render_template('transcripts.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])

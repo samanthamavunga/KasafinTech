@@ -13,12 +13,12 @@
     max-width: 50%;
     max-height: 15%;
     border-radius: 50%;
-    left: 100px;
+    left: 5px;
     right: 100px;
     position: relative;
 }
 #stopRecord {
-  background-color: #0062cc; /* Green */
+  background-color: #007bff; /* Green */
   border-width: medium;
   border-color: black;
   color: white;
@@ -32,7 +32,7 @@
   max-width: 50%;
   max-height: 15%;
   border-radius: 50%;
-  left: 100px;
+  left: 10px;
   right: 100px;
   position: relative;
 }
@@ -49,9 +49,9 @@ h2 {
 #textspace {
 
   width: 500px;
-  height: 300px;
+  height: 400px;
   margin-top: 2%;
-  margin-left: 5%;
+  margin-left: 0%;
 }
 
 

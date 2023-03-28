@@ -37,10 +37,24 @@ cursor.execute('''
         users_id INT,
         transcription TEXT NOT NULL,
         confidence_level float DEFAULT NULL,
-        date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        date_created DATE DEFAULT CURRENT_DATE,
         FOREIGN KEY (users_id) REFERENCES users(id)
     )
 ''')
+
+
+# Create the voice_transcripts table
+cursor.execute('''
+    CREATE TABLE IF NOT EXISTS income_statement (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        users_id INT,
+        item TEXT,
+        amount decimal(10,2),
+        date_created DATE DEFAULT CURRENT_DATE,
+        FOREIGN KEY (users_id) REFERENCES users(id)
+    )
+''')
+
 
 # Commit the changes
 conn.commit()
