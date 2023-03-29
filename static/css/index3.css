@@ -47,7 +47,6 @@ h2 {
 }
 
 #textspace {
-
   width: 500px;
   height: 400px;
   margin-top: 2%;
@@ -56,10 +55,9 @@ h2 {
 
 
 #recording {
-
+  margin:10%;
   position: relative;
-  top: 10%;
-  margin-left: 500px; 
+  top: 1%; 
 }
 
 /* CSS code */

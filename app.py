@@ -40,17 +40,25 @@ bcrypt = Bcrypt(app)
 
 @app.route('/transcripts')
 def transcripts():
+    if 'loggedin' in session:
+        # Retrieve user's name from session
+        username = session['username']
+        msg = request.args.get('msg')
+        users_id = session['id']
+        
+        # Retrieve the transcriptions from the database
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute("SELECT transcription, date_created FROM voice_transcripts WHERE users_id=%s", (users_id,))
+        transcripts = cursor.fetchall()
+        print(transcripts)
+        return render_template('transcripts.html', username=username,msg=msg, transcripts=transcripts)
+    else:
+        return redirect(url_for('login'))
     # Get the user id from the session
-    users_id = session['id']
     
-    # Retrieve the transcriptions from the database
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    cursor.execute("SELECT transcription, date_created FROM voice_transcripts WHERE users_id=%s", (users_id,))
-    transcripts = cursor.fetchall()
-    print(transcripts)
 
     # Render the transcripts template with the retrieved data
-    return render_template('transcripts.html', transcripts=transcripts)
+    # return render_template('transcripts.html', transcripts=transcripts)
 
 
 def preprocess_transaction(transcript):
@@ -104,46 +112,44 @@ def process_audio():
         diarization_speaker_count=1,
         speech_contexts=[
             speech.SpeechContext(
-                phrases=["bought", "sold", "capital", "GHS", "banana", "salt", "bathing soap", "flour"
-                         "soap", "canned fish", "spaghetti", "Peppe", "cooking oil", "tampico",
-                         "kalipoo", "cereas", "cornflakes", "magarine", "royco", "chocolate biscuits",
-                         "ice cream", "sanitary pads", "Detol", "noodles", "popcorn", "powdered milk",
-                         "fresh milk", "fanta", "Bigoo", "sprite", "skirts", "trousers", "top", "jeans", "t-shirts"
-                         "chocolate milk", "Nescafe coffee", "fruit Telli", "jollof soup", "red source", "fish", "Don Simon"
+                phrases=["banana", "salt", "bathingsoap", "flour"
+                         "soap", "fish", "spaghetti", "Peppe", "cooking oil", "tampico",
+                         "kalipoo", "cereas", "cornflakes", "magarine", "royco", "biscuits",
+                         "icecream", "sanitarypads", "Detol", "noodles", "popcorn", "milk",
+                         "freshmilk", "fanta", "Bigoo", "sprite", "skirts", "trousers", "top", "jeans", "t-shirts"
+                         , "Nescafecoffee", "drink", "jollof soup", "redsource", "fish", "DonSimon"
 
                          ],
-                boost=30
+                boost=50
             ),
             speech.SpeechContext(
                 phrases=["Bought yam 200", "Bought sugar 200", "Bought salt 100", "Bought fanta 200", "Bought flour 300", "Bought sanitary 600",
                          "Bought milk 500", "Bought chocolate 150", "Bought cornflakes 500", "Bought fish 400", "Bought kalipoo 200", "Bought spaghetti 300"
-                         , "Bought biscuits 320", "Bought coffee 300", "Bought noodle 300", "Bought royco 50", "Bought "],
+                         , "Bought biscuits 320", "Bought coffee 300", "Bought noodle 300", "Bought royco 50", "Bought sugar 300"],
                 boost=60
             ),
 
             speech.SpeechContext(
-                phrases=["bought item", "quantity", "amount",
-                         "sold item", "3 cedis", "10 cedis"],
-                boost=20
+                phrases=["200", "300", "150",
+                         "100", "500", "600"],
+                boost=40
             ),
 
             speech.SpeechContext(
-                phrases=["Sold banana 10 cedis", "Bought bananas 100 cedis", "Capital 2000 cedis", "Sold chocolate biscuits 4 cedis", "Sold fresh milk 30 cedis", "Sold tampico 6 cedis",
-                         "Bought popcorn 100 cedis", "Sold cooking oil 50 cedis", " Bought sprite 4 cedis", "Sold sanitary pads 12 cedis"],
-                boost=20
+                phrases=["Sold banana 10", "Sold bananas 100", "Capital 2000", "Sold biscuits 4", "Sold milk 30 cedis", "Sold tampico 6",
+                         "Sold popcorn 100", "Sold cookingoil 50", " Sold sprite 4", "Sold sanitary 12"],
+                boost=60
+            ),
+            
+            
+             speech.SpeechContext(
+                phrases=["Sold", "Bought"],
+                boost=100
             ),
         ]
     )
 
-    #     speech_contexts = [
-    #         {
-    #         "phrases": ["bought", "sold", "capital", "cedis"]
-    #         "boost": 5},
-    #                        {"phrases": ["bought sugar GHS3", "sold 12 bananas GHS10"],}
-
-    #     ]
-
-    # )
+            
 
     # Use the Speech-to-Text API to transcribe the audio
     response = client.recognize(config=config, audio=audio)
@@ -170,11 +176,6 @@ def process_audio():
     cursor.execute("INSERT INTO voice_transcripts (transcription, users_id, confidence_level) VALUES (%s, %s, %s)", (textlist, users_id, confidence))
     cursor.execute("INSERT INTO income_statement (users_id, item_name, amount, transaction_type) VALUES (%s, %s, %s, %s)", (users_id, item, amount, transaction_type))
     mysql.connection.commit()
-    
-    
-    
-    
-    
     
     
     # return results as json
@@ -253,7 +254,15 @@ def register():
 
 @app.route('/recordingpage')
 def recordingpage():
-    return render_template('recordingpage.html')
+    # Check if user is logged in
+    if 'loggedin' in session:
+        # Retrieve user's name from session
+        username = session['username']
+        msg = request.args.get('msg')
+        return render_template('recordingpage.html', username=username,msg=msg)
+    else:
+        return redirect(url_for('login'))
+    
 
 
 @app.route('/record')

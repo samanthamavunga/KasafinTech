@@ -145,7 +145,7 @@
 
                     <div class="nav-option option5">
                         <i class="fa fa-shopping-cart nav-img"></i>
-                        <h3> sales by product</h3>
+                        <h3> Sales by <br> product</h3>
                     </div>
 
                     <div class="nav-option option6">
@@ -169,38 +169,35 @@
 
 
         <div class="main">
-
-            <div class="searchbar2">
-                    <input type="text"
-                        name=""
-                        id=""
-                        placeholder="Search">
-                    <div class="searchbtn">
-                        <i class="fa fa-search srchicn"></i>
-                    </div>
-            </div>
-
-            <p>Record your voice and cick on stop when finish.</p>
-
-            <div  class="text" id="recording">
-
-                <p>
-                    <button id="record">Click Here to Record</button>
-                    <button id="stopRecord" disabled >StopRecord</button>
-                </p>
-                <div id= "textspace" style = "background-color: powderblue; text-align:center;">
-                <span id="transcription" style ="background-color: powderblue; font-size: 14px; font-weight: 700;">Transcribed Text Here</span>
+            <div class="box-container">
+                <div class="searchbar2">
+                        <input type="text"
+                            name=""
+                            id=""
+                            placeholder="Search">
+                        <div class="searchbtn">
+                            <i class="fa fa-search srchicn"></i>
+                        </div>
                 </div>
-                    
-                <p>
-                    <audio id ="recordedAudio"></audio>
-                </p>
+                <div  class="text" id="recording">
+                    <p style="margin-bottom:5px;">Record your voice and cick on stop when finish.</p>
+                    <p>
+                        <button id="record">Click Here to Record</button>
+                        <button id="stopRecord" disabled >StopRecord</button>
+                    </p>
+                    <div id= "textspace" style = "background-color: powderblue; text-align:center;">
+                        <span id="transcription" style ="background-color: powderblue; font-size: 14px; font-weight: 700;">Transcribed Text Here</span>
+                    </div>
+                        
+                    <p>
+                        <audio id ="recordedAudio"></audio>
+                    </p>
 
-                <br>
-                <form method="GET" action="{{ url_for('transcripts') }}">
-                    <input type ="submit" id="processtranscription" onclick="transApprov(event)" value ="Process" class ="submit-btn">
-                </form>
-        
+                    <br>
+                    <form method="GET" action="{{ url_for('transcripts') }}">
+                        <input type ="submit" id="processtranscription" onclick="transApprov(event)" value ="Process" class ="submit-btn">
+                    </form>
+                </div>
             </div>
         </div>
             
