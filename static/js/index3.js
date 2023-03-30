@@ -79,7 +79,7 @@ record.onclick = e => {
   // Disable the record button to prevent multiple recordings
   record.disabled = true;
   // Change the background color of the record button to indicate recording
-  record.style.backgroundColor = "green"
+  record.style.backgroundColor = "#ffcc00"
   // Enable the stop button
   stopRecord.disabled = false;
   // Clear the audioChunks array
@@ -96,7 +96,7 @@ stopRecord.onclick = e => {
   // Disable the stop button to prevent multiple stops
   stop.disabled = true;
   // Change the background color of the record button to indicate not recording
-  record.style.backgroundColor = "red"
+  record.style.backgroundColor = "green"
   // Stop recording with the MediaRecorder object
   rec.stop();
 }

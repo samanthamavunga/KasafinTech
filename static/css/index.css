@@ -24,6 +24,16 @@ body {
   
   .navbar-brand {
     color: #fff; /* sets the color of the brand text to white */
+    
+  }
+
+  .navbar-brand img {
+    height: 100px; /* adjust the height of the logo as needed */
+    margin-right: 10px; /* add some space between the logo and the text */
+    margin-top: -35px;
+    width: 100px;
+    position: relative;
+
   }
   
   .navbar-nav > li > a {
@@ -49,6 +59,10 @@ body {
   .logo {
     float: left; /* makes the logo float to the left side of the navbar */
     margin-right: 20px; /* adds some spacing to the right of the logo */
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
   }
   
   .arrow-down {

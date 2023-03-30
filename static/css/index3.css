@@ -1,5 +1,5 @@
 #record {
-    background-color: red; /* Green */
+    background-color: blue; /* Green */
     border-width: medium;
     border-color: black;
     color: white;
@@ -18,7 +18,7 @@
     position: relative;
 }
 #stopRecord {
-  background-color: #007bff; /* Green */
+  background-color: red; /* Green */
   border-width: medium;
   border-color: black;
   color: white;
@@ -62,7 +62,7 @@ h2 {
 
 /* CSS code */
 .submit-btn {
-  background-color: #4CAF50;
+  background-color: blue;
   border: none;
   color: white;
   padding: 10px 20px;
@@ -76,5 +76,5 @@ h2 {
 }
 
 .submit-btn:hover {
-  background-color: #3e8e41;
+  background-color: #ffcc00;
 }

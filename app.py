@@ -8,16 +8,20 @@ import MySQLdb.cursors
 from google.cloud import speech_v1p1beta1 as speech
 import mysql.connector
 from flask import jsonify
-from datetime import datetime
+from datetime import datetime, date
 from fuzzywuzzy import fuzz
 import pandas
-
+import requests
 import database  # import the database module
 import MySQLdb
-# import wave
-# import io
-# from pickle import FALSE
 from flask_cors import CORS
+import io
+from io import BytesIO
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter, landscape
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.units import inch
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 
 
 
@@ -77,7 +81,89 @@ def preprocess_transaction(transcript):
         item = None
         amount = 0
     return transaction_type, amount, item
+
+
+#This function will handle the revenue generation (all the sold means revenue to the business)
+@app.route('/revenue_dashboard', methods=['GET', 'POST'])
+def revenue_dashboard():
+    if 'loggedin' in session:
+        if request.method == 'POST':
+            start_date_str = request.form.get('start_date', '')
+            end_date_str = request.form.get('end_date', '')
+
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date() if end_date_str else date.today()
+
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+            cursor.execute("SELECT item_name, SUM(amount) as total_sales FROM income_statement WHERE users_id=%s AND transaction_type='sold' AND date_created BETWEEN %s AND %s GROUP BY item_name", (session['id'], start_date, end_date))
+            sales_data = cursor.fetchall()
+            total_sales = sum([sales['total_sales'] for sales in sales_data])
+
+            return render_template('revenue_dashboard.html', total_sales=total_sales, sales_data=sales_data, start_date=start_date_str, end_date=end_date_str)
+        else:
+            return render_template('revenue_dashboard.html')
+    else:
+        return redirect('/login')
+    
+
+
+
+@app.route('/download_pdf', methods=['POST'])
+def download_pdf():
+    # Get the start and end dates from the form data
+    start_date = request.form['start_date']
+    end_date = request.form['end_date']
+
+   
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute("SELECT item_name, SUM(amount) as total_sales FROM income_statement WHERE users_id=%s AND transaction_type='sold' AND date_created BETWEEN %s AND %s GROUP BY item_name", (session['id'], start_date, end_date))
+    sales_data = cursor.fetchall()
+    total_sales = sum([sales['total_sales'] for sales in sales_data])
+    
+    print(sales_data)
+    print("total sales", total_sales)
+
+    # Generate the PDF file
+    buffer = BytesIO()
+    
+    print("passed buffer stage")
+    doc = SimpleDocTemplate(buffer, pagesize=landscape(letter))
+    print('passed doc ')
+    styles = getSampleStyleSheet()
+    table_data = [['Item Name', 'Total Sales']]
+    for sale in sales_data:
+        table_data.append([sale['item_name'], str(sale['total_sales'])])
         
+    print(table_data)
+    table = Table(table_data)
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 14),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('TEXTCOLOR', (0, 1), (-1, -1), colors.black),
+        ('ALIGN', (0, 1), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 1), (-1, -1), 12),
+        ('BOTTOMPADDING', (0, 1), (-1, -1), 8),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black)
+    ]))
+    elements = []
+    elements.append(table)
+    elements.append(Paragraph('Total Sales: GHc{:.2f}'.format(total_sales), styles['Normal']))
+    doc.build(elements)
+
+    # Send the PDF file as a response
+    buffer.seek(0)
+    response = make_response(buffer.getvalue())
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = 'attachment; filename=sales_report.pdf'
+    return response
+
+
 
 
 #The beggining of the section that communicates with the Google Speech To text API.---------------------BEGIN----
@@ -130,7 +216,7 @@ def process_audio():
             ),
 
             speech.SpeechContext(
-                phrases=["200", "300", "150",
+                phrases=["200", "300", "150", "700", "1000", "20", "30", "40", "50", "60", "75", "750",
                          "100", "500", "600"],
                 boost=40
             ),
@@ -144,7 +230,7 @@ def process_audio():
             
              speech.SpeechContext(
                 phrases=["Sold", "Bought"],
-                boost=100
+                boost=60
             ),
         ]
     )
