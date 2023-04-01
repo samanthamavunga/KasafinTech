@@ -460,7 +460,7 @@ gap: 20px;
 transition: all 0.1s ease-in-out;
 }
 .nav-option:hover {
-border-left: 100px solid #a2a2a2;
+border-left: 100px solid #0e3b6b;
 background-color: #dadada;
 cursor: pointer;
 
