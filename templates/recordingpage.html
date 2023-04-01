@@ -13,6 +13,27 @@
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
+        <style>
+            #submitTransactionBtn {
+              background-color: #1abc9c;
+              color: #fff;
+              border-radius: 20px;
+              padding: 10px 20px;
+              font-size: 16px;
+              margin-right: 10px;
+              cursor: pointer;
+            }
+          
+            #clearRecordingBtn {
+              background-color: #f1c40f;
+              color: #fff;
+              border-radius: 20px;
+              padding: 10px 20px;
+              font-size: 16px;
+              cursor: pointer;
+            }
+          </style>
+
     </head>
 
     <body>
@@ -179,24 +200,19 @@
                             <i class="fa fa-search srchicn"></i>
                         </div>
                 </div>
-                <div  class="text" id="recording">
-                    <p style="margin-bottom:5px;">Record your voice and cick on stop when finish.</p>
+                <div class="text" id="recording">
+                    <p style="margin-bottom:5px;">Record your voice and click on stop when finish.</p>
                     <p>
                         <button id="record">Click Here to Record</button>
-                        <button id="stopRecord" disabled >StopRecord</button>
+                        <button id="stopRecord" disabled>Stop Record</button>
                     </p>
-                    <div id= "textspace" style = "background-color: lightblue; text-align:center;">
-                        <span id="transcription" style ="background-color: lightblue; font-size: 14px; font-weight: 700;">Transcribed Text Here</span>
+                    <div id="textspace" style="background-color: lightblue; text-align:center;">
+                        <span id="transcription" style="background-color: lightblue; font-size: 14px; font-weight: 700;">Transcribed Text Here</span>
                     </div>
-                        
                     <p>
-                        <audio id ="recordedAudio"></audio>
+                        <audio id="recordedAudio"></audio>
                     </p>
-
-                    <br>
-                    <form method="GET" action="{{ url_for('transcripts') }}">
-                        <input type ="submit" id="processtranscription" onclick="transApprov(event)" value ="Process" class ="submit-btn">
-                    </form>
+                    
                 </div>
             </div>
         </div>
@@ -211,7 +227,6 @@
                 window.location.href = "transcripts.html";
             }
         </script>
-
 
     </body>
 

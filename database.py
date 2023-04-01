@@ -43,7 +43,7 @@ cursor.execute('''
 ''')
 
 
-# Create the voice_transcripts table
+# Create the income_statement table
 cursor.execute('''
     CREATE TABLE IF NOT EXISTS income_statement (
         id INT PRIMARY KEY AUTO_INCREMENT,

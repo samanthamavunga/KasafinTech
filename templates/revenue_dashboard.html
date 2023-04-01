@@ -212,7 +212,7 @@
 
                             <h3>Total Sales: {{total_sales}}</h3>
 
-                            <form method="POST" action="{{ url_for('download_pdf') }}" id="download-pdf-form">
+                            <form method="POST" action="{{ url_for('sales_report') }}" id="download-pdf-form">
                                 <input type="hidden" name="start_date" value="{{ start_date }}">
                                 <input type="hidden" name="end_date" value="{{ end_date }}">
                                 <a href="#" onclick="document.getElementById('download-pdf-form').submit()">Download PDF</a>
