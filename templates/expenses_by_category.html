@@ -194,11 +194,11 @@
 
 
                         <h1>Expense Categories</h1>
-
+  
                         <div class="row">
                           <div class="col-md-6">
                             <h2>Expenses by Category</h2>
-                            <div id="expenses-by-category"></div>
+                            <canvas id="expenses-by-category-chart"></canvas>
                           </div>
                           <div class="col-md-6">
                             <h2>Summary</h2>
@@ -210,35 +210,48 @@
                                   <th>% of Total</th>
                                 </tr>
                               </thead>
-                              <tbody id="expense-summary"></tbody>
+                              <tbody>
+                                {% for expense in expenses_by_category %}
+                                <tr>
+                                  <td>{{ expense['transaction_type'] }}</td>
+                                  <td>{{ expense['total_expense'] }}</td>
+                                  <td>{{ expense['percentage'] }}%</td>
+                                </tr>
+                                {% endfor %}
+                              </tbody>
                             </table>
                           </div>
                         </div>
-                        
-                        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                      
                         <script>
-                          $(function() {
-                            $.getJSON('/expenses_by_category', function(data) {
-                              // Update the Expenses by Category chart
-                              var chartData = data.expenses_by_category.map(function(expense) {
-                                return {
-                                  label: expense.transaction_type,
-                                  value: expense.total_expense,
-                                };
-                              });
-                              // Code to display the chart using a chart library goes here
-                              
-                              // Update the expense summary table
-                              data.expenses_by_category.forEach(function(expense) {
-                                $('#expense-summary').append(`
-                                  <tr>
-                                    <td>${expense.transaction_type}</td>
-                                    <td>${expense.total_expense}</td>
-                                    <td>${expense.percentage}%</td>
-                                  </tr>
-                                `);
-                              });
-{% endblock %}
+                          var ctx = document.getElementById('expenses-by-category-chart').getContext('2d');
+                          var myChart = new Chart(ctx, {
+                            type: 'pie',
+                            data: {
+                              labels: {{ labels|tojson }},
+                              datasets: [{
+                                data: {{ data|tojson }},
+                                backgroundColor: [
+                                  'rgba(255, 99, 132, 0.5)',
+                                  'rgba(54, 162, 235, 0.5)',
+                                  'rgba(255, 206, 86, 0.5)',
+                                  'rgba(75, 192, 192, 0.5)',
+                                  'rgba(153, 102, 255, 0.5)',
+                                  'rgba(255, 159, 64, 0.5)'
+                                ]
+                              }]
+                            },
+                            options: {
+                              responsive: true,
+                              maintainAspectRatio: false,
+                              legend: {
+                                position: 'right'
+                              }
+                            }
+                          });
+                        </script>
+                      {% endblock %}
+
             
                       
                       
