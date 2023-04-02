@@ -36,20 +36,20 @@
                 <i class="fa fa-bars menuicn" id="menuicn"></i>
             </div>
 
-            <div class="searchbar">
+            <!-- <div class="searchbar">
                 <input type="text"
                 placeholder="Search">
                 <div class="searchbtn">
                 <i class="fa fa-search srchicn"></i>
                 </div>
-            </div>
+            </div>-->
 
             <!--This part is for the microphone recording-->
             <div>
                 <span style="font-size: 30px; color: blue;">
                 <i class="fa fa-microphone"></i>
                 </span>
-                <span style="font-size: 20px; font-weight: bold; color: green;">
+                <span style="font-size: 25px; font-weight: bold; color: green;">
                 <a href="{{ url_for('recordingpage') }}">Record your Transaction</a>
                 </span>
             </div>
@@ -136,17 +136,17 @@
                     <div class="nav-upper-options">
                         <div class="nav-option option1">
                             <i class="fa fa-dashboard nav-img"></i>
-                            <h3> Dashboard</h3>
+                            <a href="{{ url_for('dashboard') }}"><h3>Dashboard</h3></a>
                         </div>
 
                         <div class="option2 nav-option">
                             <i class="fa fa-dollar-sign nav-img"></i>
-                            <h3> Revenue</h3>
+                            <a href="{{ url_for('revenue_dashboard') }}"><h3> Revenue</h3></a>
                         </div>
 
                         <div class="nav-option option3">
                             <i class="fa fa-money-bill nav-img"></i>
-                            <h3>Expenses</h3>
+                            <a href="{{ url_for('expenses_dashboard') }}"><h3> Expenses</h3></a>
                         </div>
 
                         <div class="nav-option option4">

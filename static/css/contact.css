@@ -1,3 +1,7 @@
+
+body{
+    background-color:#002f62;
+    }
 /* Style for the form container */
 .contact-container {
     max-width: 500px;
@@ -5,8 +9,13 @@
     padding: 20px;
     border: 1px solid #ccc;
     border-radius: 10px;
-    background-color: #f2f2f2;
+    background-color: white;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    font-family: Lato, sans-serif;
+    margin-top: 100px;
+    font-size: 25px;
+    
+
 }
 /* Style for the form fields */
 input[type=text], select, textarea {
@@ -20,7 +29,7 @@ input[type=text], select, textarea {
     resize: vertical;
 }
 input[type=submit] {
-    background-color: #4CAF50;
+    background-color: #002f62;
     color: white;
     padding: 12px 20px;
     border: none;
@@ -28,9 +37,14 @@ input[type=submit] {
     cursor: pointer;
 }
 input[type=submit]:hover {
-    background-color: #45a049;
+    background-color: rgb(30, 30, 247);
 }
 /* Style for the form labels */
 label {
     font-weight: bold;
+    color: #002f62;
+}
+
+h2{
+    color: #002f62;
 }
