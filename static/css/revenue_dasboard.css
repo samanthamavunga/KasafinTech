@@ -59,9 +59,9 @@ form label, form input {
   } */
 
 
-  .table-container {
-    height: 400px; /* Set a fixed height for the container */
-    overflow-y: scroll; /* Add a vertical scrollbar to the container */
+  /* .table-container {
+    height: 400px; 
+    overflow-y: scroll; 
   }
 
   table {
@@ -95,13 +95,34 @@ form label, form input {
 
   .date-picker label {
     margin-right: 10px;
-  }
+  } */
 
-  .submit-button {
-    background-color: darkblue;
+  /* .submit-button {
+    background-color: green;
     color: white;
     padding: 8px 16px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
-  }
+  } */
+  #profit-graph {
+    width: 800px;
+    height: 600px;
+    margin: 0 auto;
+   
+}
+.plotly-colors {
+    background-color: #d82c2c;
+    border: 1px solid #10c1a0;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.plotly-colors path {
+    fill-opacity: 0.7;
+}
+.plotly-colors .point {
+    stroke-width: 2;
+}
+.plotly-colors .line {
+    stroke-width: 2;
+}

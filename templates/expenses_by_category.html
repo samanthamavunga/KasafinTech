@@ -8,7 +8,8 @@
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible"content="IE=edge">
         <meta name="viewport"content="width=device-width,initial-scale=1.0">
-        <title>Voice enabled FMS</title>
+        <title>KasaFinTech/Expense</title>
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='images/KasaFinTech_logo.png') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename="css/index3.css") }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
@@ -136,8 +137,8 @@
                 <nav class="nav">
                     <div class="nav-upper-options">
                         <div class="nav-option option1">
-                            <i class="fa fa-dashboard nav-img"></i>
-                            <a href="{{ url_for('dashboard') }}"><h3>Dashboard</h3></a>
+                            <img src="{{ url_for('static', filename='images/KasaFinTech_logo.png') }}" alt="OurApp Logo" class="nav-img">
+                            <a href="{{ url_for('dashboard') }}"><h3 style = "color: white;">Dashboard</h3></a>
                         </div>
 
                         <div class="option2 nav-option">
@@ -167,7 +168,7 @@
 
                         <div class="nav-option option7">
                             <i class="fas fa-file-alt  nav-img"></i>
-                            <h3> Report</h3>
+                            <a href="{{ url_for('income_statement') }}"><h3> Report</h3></a>
                         </div>
 
                         <div class="nav-option logout">
@@ -179,82 +180,44 @@
                 </nav>
             </div>
             <div class="main">
-                <h3 style="width:100%; font-size:24px; margin-left:10%; text-align:left; color:blue">Expense by category</h3>
                 <div class="box-container">
                     <div class="profit-report">
                         {% block content %}
-                        <h2>Profit Dashboard</h2>
+                        <h2>Expenses by Product</h2>
                         <form method="POST" action="{{ url_for('expenses_by_category') }}">
-                            <label for="start_date">Start Date:</label>
-                            <input type="date" name="start_date" id="start_date" value="{{ start_date }}" required>
-                            <label for="end_date">End Date (optional):</label>
-                            <input type="date" name="end_date" id="end_date" value="{{ end_date }}">
+                            <div class="date-selection">
+                                <label for="start_date">Start Date:</label>
+                                <input type="date" name="start_date" id="start_date" value="{{ start_date }}" required>
+                                <label for="end_date">End Date (optional):</label>
+                                <input type="date" name="end_date" id="end_date" value="{{ end_date }}">
+                            </div>
                             <input type="submit" value="Submit">
                         </form>
-
-
-                        <h1>Expense Categories</h1>
   
-                        <div class="row">
-                          <div class="col-md-6">
-                            <h2>Expenses by Category</h2>
-                            <canvas id="expenses-by-category-chart"></canvas>
-                          </div>
-                          <div class="col-md-6">
-                            <h2>Summary</h2>
-                            <table class="table table-striped">
-                              <thead>
-                                <tr>
-                                  <th>Category</th>
-                                  <th>Total Expenses</th>
-                                  <th>% of Total</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {% for expense in expenses_by_category %}
-                                <tr>
-                                  <td>{{ expense['transaction_type'] }}</td>
-                                  <td>{{ expense['total_expense'] }}</td>
-                                  <td>{{ expense['percentage'] }}%</td>
-                                </tr>
-                                {% endfor %}
-                              </tbody>
-                            </table>
+                            <h3>Products Bought</h3>
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Item Name</th>
+                                            <th>Total Bought</th>
+                                            <th>Total Expenses</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for product in bought_products %}
+                                        <tr>
+                                            <td>{{ product.item_name }}</td>
+                                            <td>{{ product.total_bought }}</td>
+                                            <td>{{ product.total_expenses }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
                           </div>
                         </div>
-                      
-                        <script>
-                          var ctx = document.getElementById('expenses-by-category-chart').getContext('2d');
-                          var myChart = new Chart(ctx, {
-                            type: 'pie',
-                            data: {
-                              labels: {{ labels|tojson }},
-                              datasets: [{
-                                data: {{ data|tojson }},
-                                backgroundColor: [
-                                  'rgba(255, 99, 132, 0.5)',
-                                  'rgba(54, 162, 235, 0.5)',
-                                  'rgba(255, 206, 86, 0.5)',
-                                  'rgba(75, 192, 192, 0.5)',
-                                  'rgba(153, 102, 255, 0.5)',
-                                  'rgba(255, 159, 64, 0.5)'
-                                ]
-                              }]
-                            },
-                            options: {
-                              responsive: true,
-                              maintainAspectRatio: false,
-                              legend: {
-                                position: 'right'
-                              }
-                            }
-                          });
-                        </script>
-                      {% endblock %}
-
-            
-                      
-                      
+                      {% endblock %} 
                     </div>
                 </div>
             </div>

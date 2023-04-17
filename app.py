@@ -29,6 +29,13 @@ from reportlab.graphics.charts.piecharts import Pie
 from decimal import Decimal
 from flask import send_file
 from flask import jsonify
+import Levenshtein
+from datetime import datetime, timedelta
+import plotly.graph_objs as go
+
+
+
+
 
 app = Flask(__name__)
 app.secret_key = 'your secret key'
@@ -47,6 +54,7 @@ mysql = MySQL(app)
 bcrypt = Bcrypt(app)
 
 
+#This function retrieve all the trascriptions stored in the database and display it in the transcripts page
 @app.route('/transcripts')
 def transcripts():
     if 'loggedin' in session:
@@ -63,13 +71,11 @@ def transcripts():
         return render_template('transcripts.html', username=username,msg=msg, transcripts=transcripts)
     else:
         return redirect(url_for('login'))
-    # Get the user id from the session
+   
     
 
-    # Render the transcripts template with the retrieved data
-    # return render_template('transcripts.html', transcripts=transcripts)
-
-
+    
+#This is for preprocessing of the trascription from the user for analysis
 def preprocess_transaction(transcript):
     action_score = fuzz.token_set_ratio(transcript.lower().split()[0], ['bought', 'sold'])
     if action_score > 20:
@@ -88,9 +94,10 @@ def preprocess_transaction(transcript):
     return transaction_type, amount, item
 
 
+
 #This function will handle the revenue generation (all the sold means revenue to the business)
 @app.route('/revenue_dashboard', methods=['GET', 'POST'])
-def revenue_dashboard():
+def revenue_dashboard():   
      # Check if user is logged in
     if 'loggedin' in session:
         if request.method == 'POST':
@@ -115,204 +122,8 @@ def revenue_dashboard():
     else:
         return redirect('/login')
     
-
-#This function will handle the expenditure generation (all the sold means revenue to the business)
-""" @app.route('/expenses_dashboard', methods=['GET', 'POST'])
-def expenses_dashboard():
-    if 'loggedin' in session:
-        if request.method == 'POST':
-            start_date_str = request.form.get('start_date', '')
-            end_date_str = request.form.get('end_date', '')
-            
-            # Retrieve user's name from session
-            username = session['username']
-            msg = request.args.get('msg')
-
-            start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
-            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date() if end_date_str else date.today()
-
-            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-            cursor.execute("SELECT item_name, SUM(amount) as total_expenses FROM income_statement WHERE users_id=%s AND transaction_type='bought' AND date_created BETWEEN %s AND %s GROUP BY item_name", (session['id'], start_date, end_date))
-            expenses_data = cursor.fetchall()
-            total_expenses = sum([expense['total_expenses'] for expense in expenses_data])
-
-            return render_template('expenses_dashboard.html', username=username,msg=msg, total_expenses=total_expenses, expenses_data=expenses_data, start_date=start_date_str, end_date=end_date_str)
-        else:
-            return render_template('expenses_dashboard.html')
-    else:
-        return redirect('/login') """
-@app.route('/expenses_dashboard', methods=['GET', 'POST'])
-def expenses_dashboard():
-    if 'loggedin' in session:
-        if request.method == 'POST':
-            start_date_str = request.form.get('start_date', '')
-            end_date_str = request.form.get('end_date', '')
-
-            start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
-            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date() if end_date_str else date.today()
-
-            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-            cursor.execute("SELECT item_name, SUM(amount) as total_expenses FROM income_statement WHERE users_id=%s AND transaction_type='bought' AND date_created BETWEEN %s AND %s GROUP BY item_name", (session['id'], start_date, end_date))
-            expenses_data = cursor.fetchall()
-            total_expenses = sum([expense['total_expenses'] for expense in expenses_data])
-
-            return render_template('expenses_dashboard.html', total_expenses=total_expenses, expenses_data=expenses_data, start_date=start_date_str, end_date=end_date_str)
-        else:
-            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-            cursor.execute("SELECT item_name, SUM(amount) as total_expenses FROM income_statement WHERE users_id=%s AND transaction_type='bought' GROUP BY item_name", (session['id'],))
-            expenses_data = cursor.fetchall()
-            total_expenses = sum([expense['total_expenses'] for expense in expenses_data])
-
-            return render_template('expenses_dashboard.html', total_expenses=total_expenses, expenses_data=expenses_data)
-    else:
-        return redirect('/login')
     
-@app.route('/profit_dashboard')
-def profit_dashboard():
-        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-         # Get the current user's ID
-        user_id = session['id']
-    
-    # Query the database for the total revenue
-        cursor.execute("SELECT SUM(amount) AS total_revenue FROM income_statement WHERE users_id = %s AND transaction_type = 'sold'", (user_id,))
-        revenue_result = cursor.fetchone()
-        total_revenue = revenue_result['total_revenue'] if revenue_result['total_revenue'] else 0
-    
-    # Query the database for the total expenses
-        cursor.execute("SELECT SUM(amount) AS total_expenses FROM income_statement WHERE users_id = %s AND transaction_type = 'bought'", (user_id,))
-        expenses_result = cursor.fetchone()
-        total_expenses = expenses_result['total_expenses'] if expenses_result['total_expenses'] else 0
-    
-    # Calculate the gross profit
-        gross_profit = total_revenue - total_expenses
-    
-    # Calculate the net profit
-        net_profit = gross_profit - (gross_profit *Decimal('0.2'))  # Assuming a 20% tax rate
-    
-    # Calculate the profit margin
-        profit_margin = (net_profit / total_revenue) * 100 if total_revenue > 0 else 0
-        profit_margin="{:.2f}".format(profit_margin)
-    
-    # Query the database for the top-selling products or services
-        cursor.execute("SELECT item_name, COUNT(*) AS total_sales FROM income_statement WHERE users_id = %s AND transaction_type='sold' GROUP BY item_name ORDER BY total_sales DESC LIMIT 3", (user_id,))
-        top_selling_products = cursor.fetchall()
-      # Query the database for all items sold and their total sales
-        cursor.execute("SELECT item_name, SUM(amount) AS total_sales FROM income_statement WHERE users_id = %s AND transaction_type='sold' GROUP BY item_name ORDER BY total_sales DESC", (user_id,))
-        sales_data = cursor.fetchall()
-    # Render the profit dashboard template with the calculated values
-        return render_template('profit_dashboard.html', total_revenue=total_revenue, total_expenses=total_expenses, gross_profit=gross_profit, net_profit=net_profit, profit_margin=profit_margin, top_selling_products=top_selling_products,sales_data=sales_data)  
-
-@app.route('/sales_by_products')
-def sales_by_products():
-    
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    
-    # Get the current user's ID
-    user_id = session['id']
-    
-    # Query the database for the list of products sold and their details
-    cursor.execute("SELECT item_name, COUNT(*) AS total_sold, SUM(amount) AS total_revenue FROM income_statement WHERE users_id = %s AND transaction_type='sold' GROUP BY item_name ORDER BY total_revenue DESC", (user_id,))
-    sold_products = cursor.fetchall()
-    
-    # Query the database for the list of products bought and their details
-    cursor.execute("SELECT item_name, COUNT(*) AS total_bought, SUM(amount) AS total_expenses FROM income_statement WHERE users_id = %s AND transaction_type='bought' GROUP BY item_name ORDER BY total_expenses DESC", (user_id,))
-    bought_products = cursor.fetchall()
-    
-    # Query the database for the sales trend of each product
-    cursor.execute("SELECT item_name, date(date_created) AS sale_date, COUNT(*) AS total_sold, SUM(amount) AS total_revenue FROM income_statement WHERE users_id = %s AND transaction_type='sold' GROUP BY item_name, sale_date ORDER BY sale_date", (user_id,))
-    sales_trends = cursor.fetchall()
-    
-    # Render the sales by products template with the fetched data
-    return render_template('sales_by_products.html', sold_products=sold_products, bought_products=bought_products, sales_data=sales_trends)
-
-""" @app.route('/expenses_by_category')
-def expenses_by_category():
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    
-    # Get the current user's ID
-    user_id = session['id']
-    
-    # Query the database for the list of expenses and their categories
-    cursor.execute("SELECT transaction_type, SUM(amount) AS total_expense FROM income_statement WHERE users_id = %s AND transaction_type IN ('sold', 'bought') GROUP BY transaction_type ORDER BY total_expense DESC", (user_id,))
-    expenses_by_category = cursor.fetchall()
-    
-    # Query the database for the list of products that have low sales
-    cursor.execute("SELECT item_name, COUNT(*) AS total_sold FROM income_statement WHERE users_id = %s AND transaction_type='sold' GROUP BY item_name HAVING total_sold < 5", (user_id,))
-    low_sales_products = cursor.fetchall()
-    
-    # Calculate the total expenses for each category
-    total_expenses = sum([expense['total_expense'] for expense in expenses_by_category])
-    
-    # Calculate the percentage of expenses for each category
-    for expense in expenses_by_category:
-        expense['percentage'] = round(expense['total_expense'] / total_expenses * 100, 2)
-    
-    # Render the expense categories template with the fetched data
-    return render_template('expenses_by_category.html', expenses_by_category=expenses_by_category, total_expenses=total_expenses, low_sales_products=low_sales_products) """
-
-
-@app.route('/expenses_by_category')
-def expenses_by_category():
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    
-    # Get the current user's ID
-    user_id = session['id']
-    
-    # Query the database for the list of expenses and their categories
-    cursor.execute("SELECT transaction_type, SUM(amount) AS total_expense FROM income_statement WHERE users_id = %s AND transaction_type IN ('sold', 'bought') GROUP BY transaction_type ORDER BY total_expense DESC", (user_id,))
-    expenses_by_category = cursor.fetchall()
-    
-    # Query the database for the list of products that have low sales
-    cursor.execute("SELECT item_name, COUNT(*) AS total_sold FROM income_statement WHERE users_id = %s AND transaction_type='sold' GROUP BY item_name HAVING total_sold < 5", (user_id,))
-    low_sales_products = cursor.fetchall()
-    
-    # Calculate the total expenses for each category
-    total_expenses = sum([expense['total_expense'] for expense in expenses_by_category])
-    
-    # Calculate the percentage of expenses for each category
-    for expense in expenses_by_category:
-        expense['percentage'] = round(expense['total_expense'] / total_expenses * 100, 2)
-    
-    # Serialize the data and return it as a JSON response
-    data = {
-        'expenses_by_category': expenses_by_category,
-        'total_expenses': total_expenses,
-        'low_sales_products': low_sales_products,
-    }
-    return jsonify(data)
-@app.route('/income_statement_dashboard', methods=[ 'POST'])
-def income_statement():
-    if 'loggedin' in session:
-        if request.method == 'POST':
-            start_date_str = request.form.get('start_date', '')
-            end_date_str = request.form.get('end_date', '')
-            
-            # Retrieve user's name from session
-            username = session['username']
-            msg = request.args.get('msg')
-
-            start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
-            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date() if end_date_str else date.today()
-
-            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-            cursor.execute("SELECT item_name, SUM(amount) as total_sales FROM income_statement WHERE users_id=%s AND transaction_type='sold' AND date_created BETWEEN %s AND %s GROUP BY item_name", (session['id'], start_date, end_date))
-            sales_data = cursor.fetchall()
-            total_sales = sum([sales['total_sales'] for sales in sales_data])
-
-            cursor.execute("SELECT item_name, SUM(amount) as total_expenses FROM income_statement WHERE users_id=%s AND transaction_type='bought' AND date_created BETWEEN %s AND %s GROUP BY item_name", (session['id'], start_date, end_date))
-            expenses_data = cursor.fetchall()
-            total_expenses = sum([expense['total_expenses'] for expense in expenses_data])
-
-            net_income = total_sales - total_expenses
-
-            return render_template('income_statement_dashboard.html', username=username,msg=msg,sales_data=sales_data, total_sales=total_sales, expenses_data=expenses_data, total_expenses=total_expenses, net_income=net_income, start_date=start_date_str, end_date=end_date_str)
-        else:
-            return render_template('income_statement_dashboard.html')
-    else:
-        return redirect('/login')
-
-
-
+#This will generate the sales report and allow for the download.
 @app.route('/sales_report', methods=['POST'])
 def sales_report():
     # Get the start and end dates from the form data
@@ -373,12 +184,44 @@ def sales_report():
     response.headers['Content-Type'] = 'application/pdf'
     response.headers['Content-Disposition'] = 'attachment; filename=sales_report.pdf'
     return response
+    
 
 
+#This function is responsible for displaying the expenses that is all items bought from the database.          
+@app.route('/expenses_dashboard', methods=['GET', 'POST'])
+def expenses_dashboard():
+    if 'loggedin' in session:
+        username = session['username']
+        if request.method == 'POST':
+            start_date_str = request.form.get('start_date', '')
+            end_date_str = request.form.get('end_date', '')
 
-#this generate the pdf report for the expense
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date() if end_date_str else date.today()
+
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+            cursor.execute("SELECT item_name, SUM(amount) as total_expenses FROM income_statement WHERE users_id=%s AND transaction_type='bought' AND date_created BETWEEN %s AND %s GROUP BY item_name", (session['id'], start_date, end_date))
+            expenses_data = cursor.fetchall()
+            total_expenses = sum([expense['total_expenses'] for expense in expenses_data])
+
+            return render_template('expenses_dashboard.html', total_expenses=total_expenses, expenses_data=expenses_data, start_date=start_date_str, end_date=end_date_str)
+        else:
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+            cursor.execute("SELECT item_name, SUM(amount) as total_expenses FROM income_statement WHERE users_id=%s AND transaction_type='bought' GROUP BY item_name", (session['id'],))
+            expenses_data = cursor.fetchall()
+            total_expenses = sum([expense['total_expenses'] for expense in expenses_data])
+
+            return render_template('expenses_dashboard.html', username=username, total_expenses=total_expenses, expenses_data=expenses_data)
+    else:
+        return redirect('/login')
+    
+    
+#this generate the pdf report for the expenses
 @app.route('/expenses_report', methods=['POST'])
 def expenses_report():
+    if 'loggedin' in session:
+        # Retrieve user's name from session
+        username = session['username']
     # Get the start and end dates from the form data
     start_date = request.form['start_date']
     end_date = request.form['end_date']
@@ -437,158 +280,174 @@ def expenses_report():
     response.headers['Content-Type'] = 'application/pdf'
     response.headers['Content-Disposition'] = 'attachment; filename=expenses_report.pdf'
     return response
+    
 
 
-
-def create_pie_chart(revenue, expenses):
-    d = Drawing(0, 0)
-    pie = Pie()
-    pie.width = 200
-    pie.height = 200
-    pie.x = 50
-    pie.y = 50
-    pie.data = [revenue, expenses]
-    pie.labels = ['Revenue', 'Expenses']
-    pie.slices.strokeWidth = 0.5
-    pie.slices[0].fillColor = colors.green
-    pie.slices[1].fillColor = colors.red
-    d.add(pie)
-    return d
-
-
-
-@app.route('/download_report')
-def download_report():
-    # Get the PDF file data from the buffer
-    buffer=BytesIO()
-    buffer.seek(0)
-    pdf_data = buffer.getvalue()
-
-    # Close the buffer
-    buffer.close()
-
-    # Set the appropriate headers for downloading the PDF file
-    headers = {
-        'Content-Disposition': 'attachment; filename=profit_report.pdf',
-        'Content-Type': 'application/pdf'
-    }
-
-    # Return the PDF file as a downloadable attachment
-    return send_file(
-        io.BytesIO(pdf_data),
-        mimetype='application/pdf',
-        as_attachment=True,
-        attachment_filename='profit_report.pdf',
-        headers=headers
-    )
-@app.route('/profit_report', methods=['POST'])
-def profit_report():
-    # Get the start and end dates from the form data
-    start_date = request.form['start_date']
-    end_date = request.form['end_date']
-
-    # Query the database to get the total revenue for the given date range
+#this is fo rthe profit page
+@app.route('/profit_dashboard')
+def profit_dashboard():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    cursor.execute("SELECT SUM(amount) as total_revenue FROM income_statement WHERE users_id=%s AND transaction_type='sold' AND date_created BETWEEN %s AND %s", (session['id'], start_date, end_date))
-    revenue_data = cursor.fetchone()
-    total_revenue = revenue_data['total_revenue'] or 0
+    if 'loggedin' in session:
+        # Retrieve user's name from session
+        username = session['username']
+        
+    # Get the current user's ID
+    user_id = session['id']
 
-    # Query the database to get the total expenses for the given date range
-    cursor.execute("SELECT SUM(amount) as total_expenses FROM income_statement WHERE users_id=%s AND transaction_type='bought' AND date_created BETWEEN %s AND %s", (session['id'], start_date, end_date))
-    expenses_data = cursor.fetchone()
-    total_expenses = expenses_data['total_expenses'] or 0
+    # Query the database for the total revenue
+    cursor.execute("SELECT SUM(amount) AS total_revenue FROM income_statement WHERE users_id = %s AND transaction_type = 'sold'", (user_id,))
+    revenue_result = cursor.fetchone()
+    total_revenue = revenue_result['total_revenue'] if revenue_result['total_revenue'] else 0
+
+    # Query the database for the total expenses
+    cursor.execute("SELECT SUM(amount) AS total_expenses FROM income_statement WHERE users_id = %s AND transaction_type = 'bought'", (user_id,))
+    expenses_result = cursor.fetchone()
+    total_expenses = expenses_result['total_expenses'] if expenses_result['total_expenses'] else 0
 
     # Calculate the gross profit
     gross_profit = total_revenue - total_expenses
 
-    # Calculate the net profit (after subtracting taxes and other expenses)
-    net_profit = gross_profit * 0.8  # assuming a 20% tax rate and other expenses
+    # Calculate the net profit
+    net_profit = gross_profit - (gross_profit * Decimal('0.2'))  # Assuming a 20% tax rate
 
-    # Calculate the profit margin (as a percentage of the total revenue)
+    # Calculate the profit margin
     profit_margin = (net_profit / total_revenue) * 100 if total_revenue > 0 else 0
+    profit_margin = "{:.2f}".format(profit_margin)
 
-    # Generate the PDF file
-    buffer = BytesIO()
+    # Query the database for the top-selling products or services
+    cursor.execute("SELECT item_name, COUNT(*) AS total_sales FROM income_statement WHERE users_id = %s AND transaction_type='sold' GROUP BY item_name ORDER BY total_sales DESC LIMIT 3", (user_id,))
+    top_selling_products = cursor.fetchall()
 
-    doc = SimpleDocTemplate(buffer, pagesize=landscape(letter))
-    styles = getSampleStyleSheet()
-
-    title_style = styles['Heading1']
-    title_style.fontSize = 18
-    title_style.alignment = TA_CENTER
-
-    total_revenue_style = styles['Normal']
-    total_revenue_style.textColor = colors.green
-    total_revenue_style.fontName = 'Helvetica-Bold'
-    total_revenue_style.fontSize = 14
-    total_revenue_style.alignment = TA_RIGHT
-
-    total_expenses_style = styles['Normal']
-    total_expenses_style.textColor = colors.red
-    total_expenses_style.fontName = 'Helvetica-Bold'
-    total_expenses_style.fontSize = 14
-    total_expenses_style.alignment = TA_RIGHT
-
-    gross_profit_style = styles['Normal']
-    gross_profit_style.fontName = 'Helvetica-Bold'
-    gross_profit_style.fontSize = 14
-    gross_profit_style.alignment = TA_RIGHT
-
-    net_profit_style = styles['Normal']
-    net_profit_style.fontName = 'Helvetica-Bold'
-    net_profit_style.fontSize = 14
-    net_profit_style.alignment = TA_RIGHT
-
-    profit_margin_style = styles['Normal']
-    profit_margin_style.fontName = 'Helvetica-Bold'
-    profit_margin_style.fontSize = 14
-    profit_margin_style.alignment = TA_RIGHT
-
-    table_data = [['Item Name', 'Total Sales']]
-    cursor.execute("SELECT item_name, SUM(quantity) as total_sales FROM income_statement WHERE users_id=%s AND transaction_type='sold' AND date_created BETWEEN %s AND %s GROUP BY item_name", (session['id'], start_date, end_date))
+    # Query the database for all items sold and their total sales
+    cursor.execute("SELECT item_name, SUM(amount) AS total_sales FROM income_statement WHERE users_id = %s AND transaction_type='sold' GROUP BY item_name ORDER BY total_sales DESC", (user_id,))
     sales_data = cursor.fetchall()
-    for sale in sales_data:
-        table_data.append([sale['item_name'], sale['total_sales']])
 
-    table = Table(table_data)
-    table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, 0), 14),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('TOPPADDING', (0, 0), (-1, 0), 12),
-        ('BOTTOMPADDING', (0, 1), (-1, -1), 6),
-        ('TOPPADDING', (0, 1), (-1, -1), 6),
-        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 1), (-1, -1), 12),
-        ('GRID', (0, 0), (-1, -1), 1, colors.grey)
-            ]))
+    # Query the database for profit data for the current user
+    cursor.execute("SELECT date_created, SUM(amount) AS profit FROM income_statement WHERE users_id = %s AND transaction_type IN ('sold', 'bought') GROUP BY date_created ORDER BY date_created ASC", (user_id,))
+    profit_data = cursor.fetchall()
+    
 
-# Add the title
-    report_title = "Profit Report for {} to {}".format(start_date, end_date)
-    elements = [Paragraph(report_title, title_style)]
+    # Query the database for profit data for the current user
+    cursor.execute("SELECT date_created, SUM(amount) AS profit FROM income_statement WHERE users_id = %s AND transaction_type IN ('sold', 'bought') GROUP BY date_created ORDER BY date_created ASC", (user_id,))
+    profit_data = cursor.fetchall()
 
-# Add the revenue, expenses, gross profit, net profit, and profit margin to the report
-    elements.append(Paragraph("Total Revenue: ${:.2f}".format(total_revenue), total_revenue_style))
-    elements.append(Paragraph("Total Expenses: ${:.2f}".format(total_expenses), total_expenses_style))
-    elements.append(Paragraph("Gross Profit: ${:.2f}".format(gross_profit), gross_profit_style))
-    elements.append(Paragraph("Net Profit: ${:.2f}".format(net_profit), net_profit_style))
-    elements.append(Paragraph("Profit Margin: {:.2f}%".format(profit_margin), profit_margin_style))
+    # Extract the x and y values from the profit data
+    x = [row['date_created'] for row in profit_data]
+    y = [row['profit'] for row in profit_data]
 
-# Add the table of item sales to the report
-    elements.append(table)
+    # Create a line plot of the profit data
+    fig = go.Figure(data=go.Scatter(x=x, y=y))
+    fig.update_layout(title='Profit over Time', xaxis_title='Date', yaxis_title='Profit')
 
-# Build the PDF file and return it as a response to the user
-    doc.build(elements)
+    # Render the profit dashboard template with the calculated values and the plotly graph
+    return render_template('profit_dashboard.html', username=username, total_revenue=total_revenue, total_expenses=total_expenses, gross_profit=gross_profit, net_profit=net_profit, profit_margin=profit_margin, top_selling_products=top_selling_products, sales_data=sales_data, graph=fig.to_html(full_html=False))
+    # return render_template('profit_dashboard.html', total_revenue=total_revenue, total_expenses=total_expenses, gross_profit=gross_profit, net_profit=net_profit, profit_margin=profit_margin, top_selling_products=top_selling_products,sales_data=sales_data)  
+    
 
-# Reset the cursor and return the PDF file as a response to the user
-    cursor.close()
-    buffer.seek(0)
-    return send_file(buffer, attachment_filename='profit_report.pdf', as_attachment=True)
+#This function will display the most sold product
+@app.route('/sales_by_products', methods=['GET', 'POST'])
+def sales_by_products():
+    # Check if user is logged in
+    if 'loggedin' in session:
+        
+        if request.method == 'POST':
+            # Retrieve start and end date from the form
+            start_date_str = request.form.get('start_date', '')
+            end_date_str = request.form.get('end_date', '')
+            
+            
+             # Retrieve user's name from session
+            username = session['username']
+            msg = request.args.get('msg')
+
+            # Convert date strings to date objects
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date() if end_date_str else date.today()
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+            # Query the database for the list of products sold and their details within the selected date range
+            cursor.execute("SELECT item_name, COUNT(*) AS total_sold, SUM(amount) AS total_revenue FROM income_statement WHERE users_id = %s AND transaction_type='sold' AND date_created BETWEEN %s AND %s GROUP BY item_name ORDER BY total_revenue DESC", (session['id'], start_date, end_date,))
+            sold_products = cursor.fetchall()
+
+            return render_template('sales_by_products.html',username=username,msg=msg, sold_products=sold_products, start_date=start_date_str, end_date=end_date_str)
+
+        else:
+            return render_template('sales_by_products.html')
+
+    else:
+        return redirect('/login')
+
+
+#This will diplay product that is causing a lot of expenses or the one purchases the most
+@app.route('/expenses_by_category', methods=['GET', 'POST'])
+def expenses_by_category():
+    # Check if user is logged in
+    if 'loggedin' in session:
+        # Get user id
+
+        if request.method == 'POST':
+            # Retrieve start and end date from the form
+            start_date_str = request.form.get('start_date', '')
+            end_date_str = request.form.get('end_date', '')
+            
+            
+             # Retrieve user's name from session
+            username = session['username']
+            msg = request.args.get('msg')
+
+            # Convert date strings to date objects
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date() if end_date_str else date.today()
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+            # Query the database for the list of products bought and their details within the selected date range
+            cursor.execute("SELECT item_name, COUNT(*) AS total_bought, SUM(amount) AS total_expenses FROM income_statement WHERE users_id = %s AND transaction_type='bought' AND date_created BETWEEN %s AND %s GROUP BY item_name ORDER BY total_expenses DESC", (session['id'], start_date, end_date,))
+            bought_products = cursor.fetchall()
+
+            return render_template('expenses_by_category.html',username=username,msg=msg,  bought_products=bought_products, start_date=start_date_str, end_date=end_date_str)
+
+        else:
+            return render_template('expenses_by_category.html')
+
+    else:
+        return redirect('/login')
+
+
+#This function will display the income statement for the period specified by the user.
+@app.route('/income_statement_dashboard', methods=[ 'POST', 'GET'])
+def income_statement():
+    if 'loggedin' in session:
+        if request.method == 'POST':
+            start_date_str = request.form.get('start_date', '')
+            end_date_str = request.form.get('end_date', '')
+            
+            # Retrieve user's name from session
+            username = session['username']
+            msg = request.args.get('msg')
+
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date() if end_date_str else date.today()
+
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+            cursor.execute("SELECT item_name, SUM(amount) as total_sales FROM income_statement WHERE users_id=%s AND transaction_type='sold' AND date_created BETWEEN %s AND %s GROUP BY item_name", (session['id'], start_date, end_date))
+            sales_data = cursor.fetchall()
+            total_sales = sum([sales['total_sales'] for sales in sales_data])
+
+            cursor.execute("SELECT item_name, SUM(amount) as total_expenses FROM income_statement WHERE users_id=%s AND transaction_type='bought' AND date_created BETWEEN %s AND %s GROUP BY item_name", (session['id'], start_date, end_date))
+            expenses_data = cursor.fetchall()
+            total_expenses = sum([expense['total_expenses'] for expense in expenses_data])
+
+            net_income = total_sales - total_expenses
+
+            return render_template('income_statement_dashboard.html', username=username,msg=msg,sales_data=sales_data, total_sales=total_sales, expenses_data=expenses_data, total_expenses=total_expenses, net_income=net_income, start_date=start_date_str, end_date=end_date_str)
+        else:
+            return render_template('income_statement_dashboard.html')
+    else:
+        return redirect('/login')
  
-
+ 
+ 
+#This function is for income statement report
 @app.route('/income_statement_report', methods=['GET','POST'])
 def income_statement_report():
     # Get the start and end dates from the form data
@@ -636,14 +495,6 @@ def income_statement_report():
     table_data.append(['Total Expenses', -total_expenses, ''])
     table_data.append(['Net Income/Loss', '', net_income])
     
-    #print(total_sales)
-    #print(total_expenses)
-    
-    # Create the pie chart
-    #pie_chart = create_pie_chart(int(total_sales), int(total_expenses))
-
-
-
     table = Table(table_data)
     table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
@@ -688,6 +539,7 @@ def income_statement_report():
     response.headers['Content-Type'] = 'application/pdf'
     response.headers['Content-Disposition'] = 'attachment; filename=income_statement_report.pdf'
     return response
+
 
 
 #The beggining of the section that communicates with the Google Speech To text API.---------------------BEGIN----
@@ -735,7 +587,7 @@ def process_audio():
             speech.SpeechContext(
                 phrases=["Bought yam 200", "Bought sugar 200", "Bought salt 100", "Bought fanta 200", "Bought flour 300", "Bought sanitary 600",
                          "Bought milk 500", "Bought chocolate 150", "Bought cornflakes 500", "Bought fish 400", "Bought kalipoo 200", "Bought spaghetti 300"
-                         , "Bought biscuits 320", "Bought coffee 300", "Bought noodle 300", "Bought royco 50", "Bought sugar 300"],
+                         , "Bought biscuits 320", "Bought coffee 300", "Bought noodle 300", "Bought royco 50", "Bought sugar 300", "Bought eggs 600"],
                 boost=60
             ),
 
@@ -747,7 +599,7 @@ def process_audio():
 
             speech.SpeechContext(
                 phrases=["Sold banana 10", "Sold bananas 100", "Capital 2000", "Sold biscuits 4", "Sold milk 30 cedis", "Sold tampico 6",
-                         "Sold popcorn 100", "Sold cookingoil 50", " Sold sprite 4", "Sold sanitary 12"],
+                         "Sold popcorn 100", "Sold cooking-oil 50", " Sold sprite 4", "Sold sanitary 12", "Sold eggs 40"],
                 boost=60
             ),
             
@@ -759,7 +611,8 @@ def process_audio():
         ]
     )
 
-            
+    #sentence to record and transcribe here; this is to measure the accuracy of the API.
+    sentence =  "bought noodles 200"
 
     # Use the Speech-to-Text API to transcribe the audio
     response = client.recognize(config=config, audio=audio)
@@ -768,12 +621,15 @@ def process_audio():
     transcription = response.results[0].alternatives[0].transcript
     confidence = response.results[0].alternatives[0].confidence
     
-    
     textlist = transcription
+    
+    #implementing the Word Error R testing
+    wer_score = 100.0 * Levenshtein.distance(sentence.split(), textlist.split())/len(sentence.split())
+    print("Word Error Rate: {:.2f}%".format(wer_score))
     
     transaction_type, amount, item = preprocess_transaction(transcription)
     
-
+    #to display an error if the user records in not recommended format
     if (transaction_type == None) or (amount == 0) or (item == None):
         transcription = "Transaction Not Captured, Please Record again in the Recommended Format..."
     
@@ -798,11 +654,8 @@ def process_audio():
 def index():
     return render_template('index.html')
 
-# @app.route('/transcripts')
-# def transcripts():
-#     return render_template('transcripts.html')
 
-
+#this is for the login validation
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     msg = ''
@@ -829,6 +682,7 @@ def logout():
     session.pop('username', None)
     return redirect(url_for('login'))
 
+#this is for the registration validation
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     msg = ''
@@ -858,7 +712,7 @@ def register():
         msg = 'Please fill out the form!'
     return render_template('register.html', msg=msg)
 
-
+#rendering recording page
 @app.route('/recordingpage')
 def recordingpage():
     # Check if user is logged in
@@ -871,14 +725,15 @@ def recordingpage():
         return redirect(url_for('login'))
     
 
-
+#rendering the record page with instructions for recording
 @app.route('/record')
 def record():
     if 'loggedin' in session:
         return render_template('record.html', username=session['username'])
     return redirect(url_for('login'))
 
-        
+   
+#rendering the dasboard     
 @app.route('/dashboard')
 def dashboard():
     # Check if user is logged in
@@ -924,26 +779,31 @@ def dashboard():
     else:
         return redirect(url_for('login'))
 
+
+#renders the services page from the landing page
 @app.route('/services')
 def services():
     return render_template('services.html')
 
+#renders the frequently asked questions page
 @app.route('/faqs')
 def faqs():
     return render_template('faqs.html')
 
+#renders the contact us page
 @app.route('/contact')
 def contact():
     return render_template('contact.html')
 
-
+#renders the revenue page 
 @app.route('/revenue')
 def revenue():
     if 'loggedin' in session:
         return render_template('revenue.html')
     else:
         return redirect('/login')
-    
+
+#renders the update_profile found on the dashboard
 @app.route('/update_profile', methods=['GET', 'POST'])
 def update_profile():
     if 'loggedin' in session:
@@ -978,7 +838,8 @@ def update_profile():
     else:
         return redirect(url_for('login'))
 
-  
+
 if __name__ == '__main__': 
     app.run(port = 5000)
+    # app.run(debug=True, host='0.0.0.0', port=5000)
     app.run(debug=True)

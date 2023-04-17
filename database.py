@@ -53,8 +53,10 @@ cursor.execute('''
         transaction_type TEXT,
         date_created DATE DEFAULT CURRENT_DATE,
         FOREIGN KEY (users_id) REFERENCES users(id)
+        
     )
 ''')
+
 
 
 # Commit the changes

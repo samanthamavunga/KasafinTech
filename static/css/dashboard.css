@@ -42,7 +42,7 @@ align-items: center;
 }
 
 .logo {
-font-size: 16px;
+font-size: 20px;
 /* font-weight: 600; */
 color: #0062cc;
 }
@@ -352,7 +352,7 @@ top: 8px;
   }
   
   input[type="submit"] {
-    background-color: #4CAF50;
+    background-color: #002f62;
     color: white;
     padding: 10px 20px;
     border: none;
@@ -362,7 +362,7 @@ top: 8px;
   }
   
   input[type="submit"]:hover {
-    background-color: #002f62;
+    background-color: #1977db;
   }
   
   input[type="text"]:focus,
@@ -454,9 +454,10 @@ width: 80px;
 width: 250px;
 height: 60px;
 display: flex;
+flex-grow: 1;
 align-items: center;
 padding: 0 30px 0 20px;
-gap: 20px;
+gap: 5px;
 transition: all 0.1s ease-in-out;
 }
 .nav-option:hover {
@@ -481,6 +482,12 @@ border-left: 5px solid #010058af;
 background-color: var(--Border-color);
 color: white;
 cursor: pointer;
+padding:1px;
+gap: 2px;
+margin-right: 10px;
+display: flex;
+align-items: center;
+
 }
 .option1:hover {
 border-left: 5px solid #010058af;
@@ -633,3 +640,102 @@ a {
   overflow: hidden;
   background-color: #f1f1f1;
 } */
+
+/* .nav-upper-options .nav-option .fa {
+  font-size: 20px; 
+  line-height: 40px; 
+  padding-right: 10px; 
+} */
+
+/* .nav-upper-options .nav-option img {
+  max-height: 100px;
+  max-width: 100px;
+} */
+
+.nav-img {
+  max-width: 75%;
+  height: auto;
+  filter: brightness(150%);
+  margin: 0;
+  max-height: 65px;
+  text-align: right;
+  margin-right: 5px;
+}
+
+
+
+/*providing css to the transaction tables*/
+.table-container {
+  height: 400px; 
+  overflow-y: scroll; 
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+th {
+  position: sticky;
+  top: 0;
+  background-color: white;
+}
+
+.date-selection {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.date-picker {
+  display: flex;
+  align-items: center;
+  height: 40px;
+}
+
+.date-picker label {
+  margin-right: 10px;
+}
+
+/*Prviding styles to the download button*/
+
+.download-link {
+  display: inline-block;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border-radius: 5px;
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+
+.download-link:hover {
+  background-color: #008CBA;
+}
+
+.download-link i {
+  margin-right: 5px;
+}
+
+
+.generate-btn {
+  background-color: #002f62;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.generate-btn:hover {
+  background-color: #0062cc;
+  color: #fff;
+}

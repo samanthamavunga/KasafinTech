@@ -9,7 +9,8 @@
 	<meta name="viewport"
 		content="width=device-width,
 				initial-scale=1.0">
-	<title>Voice enabled FMS</title>
+	<title>KasaFinTech/dashboard</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='images/KasaFinTech_logo.png') }}">
 	<link rel="stylesheet"
 		href="{{ url_for('static', filename='css/dashboard.css') }}">
 	<link rel="stylesheet"
@@ -44,10 +45,10 @@
 
     <!--This part is for the microphone recording-->
     <div>
-      <span style="font-size: 30px; color: blue;">
+      <span style="font-size: 32px; color: blue;">
         <i class="fa fa-microphone"></i>
       </span>
-      <span style="font-size: 25px; font-weight: bold; color: green;">
+      <span style="font-size: 26px; font-weight: bold; color: green;">
         <a href="{{ url_for('recordingpage') }}">Record your Transaction</a>
       </span>
     </div>
@@ -145,11 +146,12 @@ window.onclick = function(event) {
 	<div class="main-container">
 		<div class="navcontainer">
 			<nav class="nav">
-				<div class="nav-upper-options">
-					<div class="nav-option option1">
-						<i class="fa fa-dashboard nav-img"></i>
-            <a href="{{ url_for('dashboard') }}"><h3>Dashboard</h3></a>
-					</div>
+        <div class="nav-upper-options">
+          <div class="nav-option option1">
+              <img src="{{ url_for('static', filename='images/KasaFinTech_logo.png') }}" alt="OurApp Logo" class="nav-img">
+              <a href="{{ url_for('dashboard') }}"><h3 style = "color: white;">Dashboard</h3></a>
+          </div>
+      
 
 					<div class="option2 nav-option">
 						<i class="fa fa-dollar-sign nav-img"></i>

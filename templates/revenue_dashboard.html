@@ -8,7 +8,8 @@
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible"content="IE=edge">
         <meta name="viewport"content="width=device-width,initial-scale=1.0">
-        <title>Voice enabled FMS</title>
+        <title>KasaFinTech</title>
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='images/KasaFinTech_logo.png') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename="css/index3.css") }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
@@ -136,9 +137,10 @@
                 <nav class="nav">
                     <div class="nav-upper-options">
                         <div class="nav-option option1">
-                            <i class="fa fa-dashboard nav-img"></i>
-                            <a href="{{ url_for('dashboard') }}"><h3>Dashboard</h3></a>
+                            <img src="{{ url_for('static', filename='images/KasaFinTech_logo.png') }}" alt="OurApp Logo" class="nav-img">
+                            <a href="{{ url_for('dashboard') }}"><h3 style = "color: white;">Dashboard</h3></a>
                         </div>
+                    
 
                         <div class="option2 nav-option">
                             <i class="fa fa-dollar-sign nav-img"></i>
@@ -152,12 +154,12 @@
 
                         <div class="nav-option option4">
                             <i class="fa fa-chart-pie nav-img"></i>
-                            <h3> Profit</h3>
+                            <a href="{{ url_for('profit_dashboard') }}"><h3> Profit</h3></a>
                         </div>
 
                         <div class="nav-option option5">
                             <i class="fa fa-shopping-cart nav-img"></i>
-                            <h3> Sales by <br> product</h3>
+                            <a href=" {{url_for('sales_by_products')}}"><h3> Sales by products </h3></a>
                         </div>
 
                         <div class="nav-option option6">
@@ -167,7 +169,7 @@
 
                         <div class="nav-option option7">
                             <i class="fas fa-file-alt  nav-img"></i>
-                            <h3> Report</h3>
+                            <a href="{{ url_for('income_statement') }}"><h3> Report</h3></a>
                         </div>
 
                         <div class="nav-option logout">
@@ -179,7 +181,6 @@
                 </nav>
             </div>
             <div class="main">
-                <h3 style = style="width:100%; font-size:24px; margin-left:10%; text-align:left; color:blue">Daily Revenue Report</h3>
                 <div class="box-container">
                     <div class="rev-report">
                       {% block content %}
@@ -222,7 +223,9 @@
                       <form method="POST" action="{{ url_for('sales_report') }}" id="download-pdf-form">
                         <input type="hidden" name="start_date" value="{{ start_date }}">
                         <input type="hidden" name="end_date" value="{{ end_date }}">
-                        <a href="#" onclick="document.getElementById('download-pdf-form').submit()">Download PDF</a>
+                        <a href="#" onclick="document.getElementById('download-pdf-form').submit()" class="download-link">
+                            <i class="fas fa-download"></i> Download PDF
+                          </a>
                       </form>
                   
                       <script>
