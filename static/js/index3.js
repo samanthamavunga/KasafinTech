@@ -96,7 +96,7 @@ stopRecord.onclick = e => {
   // Disable the stop button to prevent multiple stops
   stop.disabled = true;
   // Change the background color of the record button to indicate not recording
-  record.style.backgroundColor = "green"
+  record.style.backgroundColor = "#002f62"
   // Stop recording with the MediaRecorder object
   rec.stop();
 }
